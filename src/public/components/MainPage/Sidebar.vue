@@ -1,0 +1,121 @@
+<template>
+  <div
+    id="sideBar"
+    style="
+      background-color: #272B2F;
+      width: 100px;
+      height: 100vh;
+      position: absolute;
+      margin-top: 0;
+    ">
+    <div
+      class="tabIndicator"
+      :style="{
+        width: tabIndicatorSize,
+        height: '50px',
+        borderRadius:'7px',
+        backgroundColor: 'white',
+        boxShadow: '5px 5px 17px 5px rgba(0, 0, 0, 20%)',
+        marginLeft: '25px',
+        marginTop: tabIndicatorPosition,
+        position: 'absolute',
+      }">
+      <p style="color: black; width: 90%; text-align: right; margin-top: 14px;">
+        {{ Object.values(Tab)[props.activeTab] }}
+      </p>  
+    
+    </div>
+      
+
+    <div style="margin-top: 1vh; height: 100vh; display: flex; flex-direction: column; gap: 40px;
+    align-items: center; justify-content: center;">
+      <img 
+        src="../../images/new.svg"
+        class="sideBarButton"
+        @click="changeTab(Tab.New)"
+        >
+        <img 
+        src="../../images/friends.svg"
+        class="sideBarButton"
+        @click="changeTab(Tab.Friends)"
+        >
+        <img 
+        src="../../images/transfers.svg"
+        class="sideBarButton"
+        @click="changeTab(Tab.Transfers)"
+        >
+        
+        <img 
+        src="../../images/history.svg"
+        class="sideBarButton"
+        @click="changeTab(Tab.History)"
+        >
+
+        <img 
+        src="../../images/settings.svg"
+        class="sideBarButton"
+        @click="changeTab(Tab.Settings)"
+        >
+
+
+      <!-- button
+        :style="{
+          color: inactiveTabColor,
+        }"
+        class="sideBarButton"
+        @click="changePage(Page.Connection)"
+        tabindex="-1">
+        R
+      </button -->
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">  
+
+import { computed } from "vue";
+import { Tab, Page } from "../../../shared/misc"
+const props = defineProps<{
+  activeTab: Tab;
+}>();
+
+const emit = defineEmits<{
+  (e: "tabChange", newTab: Tab): void;
+  (e: "pageChange", newPage: Page): void;
+}>();
+
+///Constants
+const tabIndicatorPositions: Record<Tab, string> = {
+  [Tab.New]: "189px",
+  [Tab.Friends]: "256px",
+  [Tab.Transfers]: "323px",
+  [Tab.History]: "389px",
+  [Tab.Settings]: "457px",
+};
+
+const tabIndicatorSizes: Record<Tab, string> = {
+  [Tab.New]: "85px",
+  [Tab.Friends]: "110px",
+  [Tab.Transfers]: "130px",
+  [Tab.History]: "110px",
+  [Tab.Settings]: "125px",
+};
+
+///Computed properties
+const tabIndicatorPosition = computed(
+  () => tabIndicatorPositions[props.activeTab],
+);
+
+
+///Computed properties
+const tabIndicatorSize = computed(
+  () => tabIndicatorSizes[props.activeTab],
+);
+
+
+///Local event handlers
+function changeTab(newTab: Tab) {
+  emit("tabChange", newTab);
+}
+
+</script>

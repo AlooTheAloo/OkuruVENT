@@ -76,6 +76,7 @@ function rpcHandle(api, handler: RpcHandler, canonical) {
 }
 
 ipcRenderer.on("RPC:Invoke", (_event, { api, id, args }) => {
+  console.log("received RPCINVOKE");
   const handlers = [...(rpcHandlers.get(api) ?? new Map<symbol, RpcHandler>())];
   if (canonicalRpcHandlers.has(api))
     handlers.unshift(canonicalRpcHandlers.get(api)!);

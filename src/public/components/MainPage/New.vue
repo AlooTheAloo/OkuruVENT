@@ -1,0 +1,203 @@
+<template>
+  <div class="body">
+    <div id="moreOptions" class="device-more-options-context-menu" 
+    :style="{marginLeft:contextClickPos.x, marginTop:contextClickPos.y, display:windowOpened?'block':'none'}"
+    >
+
+    </div>
+            
+    
+    <div class="discoverable-header-container">
+      <p>You are discoverable as</p>
+      <p class="deviceName">
+        <img src="../../images/computer.svg" style="width: 25px;">
+        {{ deviceName }}
+        <img src="../../images/edit.svg" style="margin-left:10px; width: 20px;">
+      </p>
+      <p>
+        By 
+        <div class="clickable discovery-selector" >
+          <p style="margin-left: 10px; color: black;">
+            Everyone
+          </p>
+          <img src="../../images/expand.svg" style="display: inline; position: absolute; margin-top: -27px; margin-left: 95px; width: 30px; height: 30px;">
+        </div>
+      </p>
+    </div>
+
+    <div class="connected-devices"> 
+      <div class="nearby-container">
+        <p class="nearby-devices-text">
+          Nearby devices
+        </p>
+      </div>
+      
+      
+      
+      <div class="peerSelectTypeParent">
+
+        <div class="filter-Select clickable animate" @mouseover="hoveringAll = true" @mouseleave="hoveringAll = false"
+          :style="{backgroundColor:selectedFilter == Filter.All ? '#6A9CFF' : (hoveringAll ? '#646464' : '#343434')} "
+          @click="selectedFilter = Filter.All"
+        >
+          <p style="text-align: center;">All</p>
+        </div>
+        <div class="filter-Select clickable animate" @mouseover="hoveringFriends = true" @mouseleave="hoveringFriends = false"
+          :style="{backgroundColor:selectedFilter == Filter.Friends ? '#6A9CFF' : (hoveringFriends ? '#646464' : '#343434')} "
+          @click="selectedFilter = Filter.Friends"
+        >
+          <p style="text-align: center;">Friends</p>
+        </div>
+        
+        <div class="clickable refresh" v-on:click="disconnectPeers()" >
+          <img src="../../images/refresh.svg" style="width: 25px; height:25px;" >
+        </div>
+      </div>
+
+      <hr style=" margin-left: 30px; margin-right: 30px;">
+
+    <div class="all-clients-container" 
+    :style="{justifyContent: connectedPeers?.length == 0 ? 'center' : 'start',
+              alignItems: connectedPeers?.length == 0 ? 'center' : 'start'
+            }"> 
+      <p v-if="connectedPeers?.length == 0">
+          Searching for available devices...
+      </p>
+      <div v-else class="client-element" v-for="peer in sanitize(connectedPeers)" >
+        <div class="information-container">
+          <img src="../../images/computer.svg" class="client-image">
+          <p>
+            {{ `${peer.hostname}` }}
+            <img v-if="peer.isFriend" class="is-friend" src="../../images/isfriend.svg"> 
+          </p>
+        
+        </div>
+        <div class="peer-buttons-container">
+          <div class="peer-button clickable center-inner" v-on:click="RequestFileTransfer(peer.ID)">
+            <p style="color: black;">+</p>
+          </div>
+          <div class="peer-button clickable center-inner" v-on:click="OpenContextWindow(peer.ID)">
+            <p style="color: black; margin-top: -10px;">
+              ...
+            </p>
+          </div>
+        </div>
+
+      </div>
+        
+    </div>
+
+
+
+  </div>
+  </div>
+</template>
+<style src="../../css/dashboard.css"/>    
+<style src="../../css/global.css"/>    
+
+<script setup lang="ts">
+
+// Imports
+import { ref } from 'vue';
+import { rpcHandle, rpcInvoke } from '../../js/rpc';
+import { Filter, Peer } from '@shared/misc';
+
+// Refs
+const connectedPeers = ref<Peer[]>([]);
+const deviceName = ref<String>();
+const selectedFilter = ref<Filter>(Filter.All);
+const hoveringAll = ref<boolean>(false);
+const hoveringFriends = ref<boolean>(false);
+const contextClickPos = ref<{x:string, y:string}>({x:'0px', y:'0px'});
+const windowOpened = ref<boolean>(false);
+
+// Mouse moving
+window.addEventListener('mousemove', updateMouseCoordinates);
+
+function updateMouseCoordinates(evt:MouseEvent){
+  if(windowOpened.value) return;
+  const x = clamp(evt.clientX - 100, 12, window.innerWidth - 300) + "px";
+  const y = clamp(evt.clientY, 12, window.innerHeight - 412)   + "px";
+  contextClickPos.value = {x:x, y:y}; 
+}
+
+/**
+ * Helper method to clamp a number. Assigns a maximum and a minimum to a number, 
+ * and if it goes past, it gets reduced to it <br>
+ * @param {number} x the number to clamp
+ * @param {number} min the minimum value to clamp it to
+ * @param {number} max the maximum value to clamp it to
+ * @returns {number} the clamped number 
+ */
+function clamp (x:number, min:number, max:number):number{
+  if(x < min) return min;
+  if (x > max) return max;
+  return x;
+}
+
+// This is painful to do but necessary
+let eatNextClick = false;
+
+function OpenContextWindow(peerID:string){
+  if(windowOpened.value == false) eatNextClick = true;
+  windowOpened.value = !windowOpened.value;
+}
+
+window.addEventListener("click", (evt) => {
+  if(eatNextClick){
+    eatNextClick = false;
+    return;
+  }
+  const moreOptionsElement = document.getElementById("moreOptions") // :death:
+  if(moreOptionsElement != evt.target){
+    windowOpened.value = false;
+  }
+})
+
+
+/**
+ *  Page loaded, we want to get devicename information
+ *  from main process
+ */
+ rpcInvoke("Application:Require:DeviceName");
+rpcHandle("Application:DeviceName", (res) => {
+  deviceName.value = res;
+})
+
+
+
+
+/**
+ * Test function for now, will remove later
+ * Disconnects all peers around
+ */
+function disconnectPeers(){
+    rpcInvoke('Application:PeerDisconnect');
+}
+
+function sanitize(peers:Peer[]):Peer[]{
+  return peers.filter(x => selectedFilter.value == Filter.Friends ? x.isFriend : 1 == 1);
+}
+
+
+/**
+ *  Home page has been opened, let's ask the server for connected peers
+ */
+rpcInvoke("Application:Require:PeersUpdate");
+
+/**
+ * New client has been discovered / left the network
+ */
+rpcHandle("Application:PeersUpdate", (peers:Peer[]) => {
+  connectedPeers.value = peers;
+}); 
+
+/**
+ * Requests a file transfer to the connected peer
+ * @param {string} id socket id to send the file to
+ */
+function RequestFileTransfer(id:string):void{ rpcInvoke(`Application:FileTransfer:RequestFileTransfer:${id}`); }
+
+
+
+</script>

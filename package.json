@@ -25,7 +25,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "tsuzuku"
+            "name": "Okuru"
           }
         },
         {
@@ -45,8 +45,8 @@
       ],
       "plugins": [
         {
-          "name":"@electron-forge/plugin-webpack",
-          "config":{
+          "name": "@electron-forge/plugin-webpack",
+          "config": {
             "devServer": {
               "liveReload": false
             },
@@ -63,7 +63,6 @@
                     "js": "./src/preload.ts"
                   }
                 }
-                
               ]
             }
           }
@@ -75,6 +74,8 @@
     "css-loader": "^6.7.1",
     "electron-prompt": "^1.7.0",
     "electron-squirrel-startup": "^1.0.0",
+    "socket.io": "^4.5.4",
+    "socket.io-client": "^4.5.4",
     "source-map-support": "^0.5.21",
     "typescript": "^4.8.3",
     "vue": "^3.2.39"
