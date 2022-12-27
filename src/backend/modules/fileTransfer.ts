@@ -1,8 +1,8 @@
 import { ipcMain, dialog, Notification, BrowserWindow } from 'electron';
-import os from 'os';
 import fs from 'fs';
 import { PathLike } from 'original-fs';
 import { Socket } from 'socket.io';
+import { getHostName } from './helper';
 
 let currentNotification:Notification;
 
@@ -26,7 +26,7 @@ export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
                 var filename = res.filePaths[0].replace(/^.*[\\\/]/, '')
                 console.log("sending file to socket " + filename + " " + socket.id + " " + transferID);
                 currentAwaitingSenderTransfers.push ({ filename:filename, id:transferID, path:res.filePaths[0] })
-                socket.emit("Transfer:RequestFileTransfer", filename, os.hostname(), transferID);
+                socket.emit("Transfer:RequestFileTransfer", filename, getHostName(), transferID);
             } 
         })
         
@@ -106,7 +106,6 @@ function SendPacket(fileTransferID:string, unixMSTimeStamp:number, packetID:numb
     if(targetTransfer == undefined) return; // No transfer
     fs.open(targetTransfer.path, 'r', (status, fd) => { // Open target file
         if (status) { // Error
-            console.log(status.message);
             return;
         }
 

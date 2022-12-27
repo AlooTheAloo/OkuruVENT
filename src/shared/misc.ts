@@ -7,8 +7,9 @@ export enum Tab {
 }
 
 export enum Page{
-  Dashboard,
-  Connection
+  StartPage,
+  MainPage,
+  None
 }
 
 export enum Filter{

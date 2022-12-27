@@ -50,10 +50,8 @@ const createWindow = () => {
   //mainWindow.loadURL(PAIR_PAGE_WEBPACK_ENTRY);
 
   // Open the DevTools
-  mainWindow.webContents.openDevTools();
   startNetDiscovery(mainWindow);
   mainWindow.on('close', event=>{
-    console.log("prevented");
     event.preventDefault(); //this prevents it from closing. The `closed` event will not fire now
     mainWindow.hide();
   })
@@ -95,7 +93,6 @@ app.whenReady().then(async () => {
       label: "Exit",
       type: "normal",
       click: () => {
-        console.log("hello, world!");
         app.exit(0);
       },
     },

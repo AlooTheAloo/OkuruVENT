@@ -2,7 +2,7 @@ import { app, BrowserWindow, dialog, Notification, shell } from "electron";
 import { existsSync, appendFileSync, rmSync, writeFileSync } from "original-fs";
 import { sep } from "path";
 import { Socket } from "socket.io";
-const os = require("os")
+import { getHostName } from "./helper";
 let transfers:{id:string, filepath:string}[] = [];
 let shownNotification:Notification;
 
@@ -30,14 +30,14 @@ export function createModuleForServer(socket:Socket, mainwindow:BrowserWindow):v
                 defaultPath: app.getPath("downloads") + sep + filename,
             }).then((res) => {
                 if(res.canceled){
-                    socket.emit("ACK:Transfer:FileRequestTransfer", transferID, false, os.hostname());
+                    socket.emit("ACK:Transfer:FileRequestTransfer", transferID, false, getHostName());
                 }
                 else{
                     if(res.filePath == null) return;
                     // Set in arr
                     transfers.push({id:transferID, filepath:res.filePath});
                     // Reply
-                    socket.emit("ACK:Transfer:FileRequestTransfer", transferID, true, os.hostname());
+                    socket.emit("ACK:Transfer:FileRequestTransfer", transferID, true, getHostName());
                     transfers.push({id: transferID, filepath: res.filePath });
                 }
             })

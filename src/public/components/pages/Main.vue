@@ -1,70 +1,26 @@
 <template>
-
-<Sidebar
-    @tabChange="changeTab"
-    :active-tab="activeTab"/>
-    <!-- Current device name-->
-
-    <div style="margin-left: 100px; overflow-x: hidden;">
-      <New   v-if="activeTab == Tab.New"/>
-      <Friends v-else-if="activeTab == Tab.Friends"/>
-      <Transfers v-else-if="activeTab == Tab.Transfers"/>
-      <History v-else-if="activeTab == Tab.History"/>
-      <Settings  v-else-if="activeTab == Tab.Settings"/>
-      <p v-else>This is awkward. There's nothing to show here.</p>
-    </div>
-      
-    
-
-    
+    <StartPage v-if="currentPage==Page.StartPage"/>
+    <MainPage v-else-if="currentPage==Page.MainPage"/>
+    <!-- Redirecting... -->
+    <div v-else-if="currentPage==Page.None"></div>
+    <div v-else><p>Uhhh, you're not supposed to be here</p></div>
 </template>
-
 <script setup lang="ts">
 
-// Imports
-import { ref } from 'vue';
-import { rpcHandle } from '../../js/rpc';
-import { Tab } from '@shared/misc';
+    // Imports
+    import { ref } from 'vue';
+    // Pages
+    import StartPage from "./StartPage.vue";
+    import MainPage from "./MainPage.vue";
+    import { rpcHandle, rpcInvoke } from '../../js/rpc';
+    import { Page } from '@shared/misc'; 
+    
+    // Refs
+    const currentPage = ref<Page>(Page.None);
+    rpcInvoke("Application:Require:ApplicationHasBeenSetup");
+    rpcHandle("Application:ChangePage", (page:Page) =>{
+        currentPage.value = page;
+    })
 
-
-// Pages
-import Settings from "../MainPage/Settings.vue";
-import Transfers from "../MainPage/Transfers.vue";
-import History from "../MainPage/History.vue";
-import Friends from "../MainPage/Friends.vue";
-import New from "../MainPage/New.vue";
-import Sidebar from "../MainPage/Sidebar.vue";
-
-
-// Refs
-const activeTab = ref<Tab>(Tab.New);
-const slideDirection = ref(1);
-const connectedPeers = ref<{address:string, ID:string, hostname:string}[]>();
-
-
-
-
-// Event handlers raised by components
-async function changeTab(newTab: Tab) {
-  console.log("changed tab " + newTab);
-  const currentTab = activeTab.value;
-  slideDirection.value = Math.min(Math.max(newTab - currentTab, -1), 1);
-  activeTab.value = newTab;
-}
-
-/**
- * New client has been discovered / left the network
- */
-rpcHandle("Application:PeersUpdate", (peers:{address:string, ID:string, hostname:string}[]) => {
-    connectedPeers.value = peers;
-}); 
 
 </script>
-
-<style scoped>
-  @import '../../css/global.css';
-  @import '../../css/dashboard.css';
-
-</style>
-
-

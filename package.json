@@ -1,6 +1,6 @@
 {
-  "name": "template",
-  "productName": "template",
+  "name": "okuru",
+  "productName": "okuru",
   "version": "7.2.7",
   "description": "My Electron application description",
   "main": ".webpack/main",
@@ -56,8 +56,8 @@
               "config": "./webpack.renderer.config.js",
               "entryPoints": [
                 {
-                  "html": "./src/public/pages/MainPage.html",
-                  "js": "./src/public/js/MainPage.ts",
+                  "html": "./src/public/pages/Main.html",
+                  "js": "./src/public/js/Main.ts",
                   "name": "main_page",
                   "preload": {
                     "js": "./src/preload.ts"

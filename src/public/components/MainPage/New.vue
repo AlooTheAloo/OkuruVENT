@@ -116,7 +116,7 @@ window.addEventListener('mousemove', updateMouseCoordinates);
 
 function updateMouseCoordinates(evt:MouseEvent){
   if(windowOpened.value) return;
-  const x = clamp(evt.clientX - 100, 12, window.innerWidth - 300) + "px";
+  const x = clamp(evt.clientX - 90, 12, window.innerWidth - 300) + "px";
   const y = clamp(evt.clientY, 12, window.innerHeight - 412)   + "px";
   contextClickPos.value = {x:x, y:y}; 
 }
@@ -159,8 +159,8 @@ window.addEventListener("click", (evt) => {
  *  Page loaded, we want to get devicename information
  *  from main process
  */
- rpcInvoke("Application:Require:DeviceName");
-rpcHandle("Application:DeviceName", (res) => {
+ rpcInvoke("Application:Require:HostName");
+rpcHandle("Application:HostName", (res) => {
   deviceName.value = res;
 })
 

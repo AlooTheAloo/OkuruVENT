@@ -9,6 +9,7 @@ import { rpcInvoke } from "../../rpc";
 import { BrowserWindow } from "electron";
 import { port } from "./constants";
 import { DeviceType, Peer } from '@shared/misc';
+import { getHostName } from './helper';
 // Connected peers
 let peers:Peer[] = [];
 let canStart = false;
@@ -28,7 +29,7 @@ export function netDiscov(win:BrowserWindow):void{
   }
 
 
-  let message = Buffer.from("Okuru | Searching for devices | " + os.hostname());
+  let message = Buffer.from("Okuru | Searching for devices | " + getHostName());
   var addr = Object.values(os.networkInterfaces()) // Get all network interfaces
   .flat()
   .filter<os.NetworkInterfaceInfo>(
