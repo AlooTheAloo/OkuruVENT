@@ -22,6 +22,9 @@ import { getHostName } from "./modules/helper";
 const server = new Server(port, {pingInterval:2000, pingTimeout:6000, transports: ['websocket'], maxHttpBufferSize: 1e25});
 export const appDataPath = app.getPath('userData') + sep;
 
+// Client vars stored here
+export let currentPage = Page.None; 
+
 // Global non-garbage collected variables
 let mainWindow:BrowserWindow|undefined = undefined;
 
@@ -45,12 +48,13 @@ ipcMain.handle("Application:Require:DeviceName", () => {
 ipcMain.handle("Application:StartPage:SendHostName", (evt:Event, chosenHostname:string) => {
   createApp(appDataPath, chosenHostname);
   rpcInvoke("Application:ChangePage", Page.MainPage);
+  currentPage = Page.MainPage;
 })
 
 ipcMain.handle("Application:Require:ApplicationHasBeenSetup", () => {
-  const setup = existsSync(`${appDataPath}User/`);
-  if(setup) rpcInvoke("Application:ChangePage", Page.MainPage);
-  else rpcInvoke("Application:ChangePage", Page.StartPage);
+  const setup = existsSync(`${appDataPath}User${sep}`);
+  if(setup) { rpcInvoke("Application:ChangePage", Page.MainPage); currentPage = Page.MainPage }
+  else { rpcInvoke("Application:ChangePage", Page.StartPage); currentPage = Page.StartPage }
 });
 
 ipcMain.handle("Application:Require:HostName", () =>{

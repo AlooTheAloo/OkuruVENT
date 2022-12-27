@@ -8,8 +8,9 @@ import os from "os";
 import { rpcInvoke } from "../../rpc";
 import { BrowserWindow } from "electron";
 import { port } from "./constants";
-import { DeviceType, Peer } from '@shared/misc';
+import { DeviceType, Page, Peer } from '@shared/misc';
 import { getHostName } from './helper';
+import { currentPage } from '../server';
 // Connected peers
 let peers:Peer[] = [];
 let canStart = false;
@@ -19,6 +20,9 @@ let broadcastServer:dgram.Socket;
  * @param win electron window to send notifications to 
  */
 export function netDiscov(win:BrowserWindow):void{
+  if(currentPage != Page.MainPage) return; // No discovery unless we are on main page
+
+
   if(!canStart){
     mainwindow = win;
     startClientNetDiscovery()

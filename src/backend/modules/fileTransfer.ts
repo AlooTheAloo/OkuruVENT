@@ -106,6 +106,7 @@ function SendPacket(fileTransferID:string, unixMSTimeStamp:number, packetID:numb
     if(targetTransfer == undefined) return; // No transfer
     fs.open(targetTransfer.path, 'r', (status, fd) => { // Open target file
         if (status) { // Error
+            console.log(status.message);
             return;
         }
 

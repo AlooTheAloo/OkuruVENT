@@ -3,10 +3,10 @@
     <div id="moreOptions" class="device-more-options-context-menu" 
     :style="{marginLeft:contextClickPos.x, marginTop:contextClickPos.y, display:windowOpened?'block':'none'}"
     >
-
+      <p>
+        {{ contextWindowID }}
+      </p>
     </div>
-            
-    
     <div class="discoverable-header-container">
       <p>You are discoverable as</p>
       <p class="deviceName">
@@ -31,9 +31,6 @@
           Nearby devices
         </p>
       </div>
-      
-      
-      
       <div class="peerSelectTypeParent">
 
         <div class="filter-Select clickable animate" @mouseover="hoveringAll = true" @mouseleave="hoveringAll = false"
@@ -53,9 +50,7 @@
           <img src="../../images/refresh.svg" style="width: 25px; height:25px;" >
         </div>
       </div>
-
       <hr style=" margin-left: 30px; margin-right: 30px;">
-
     <div class="all-clients-container" 
     :style="{justifyContent: connectedPeers?.length == 0 ? 'center' : 'start',
               alignItems: connectedPeers?.length == 0 ? 'center' : 'start'
@@ -82,13 +77,8 @@
             </p>
           </div>
         </div>
-
       </div>
-        
     </div>
-
-
-
   </div>
   </div>
 </template>
@@ -110,6 +100,7 @@ const hoveringAll = ref<boolean>(false);
 const hoveringFriends = ref<boolean>(false);
 const contextClickPos = ref<{x:string, y:string}>({x:'0px', y:'0px'});
 const windowOpened = ref<boolean>(false);
+const contextWindowID = ref<string>("");
 
 // Mouse moving
 window.addEventListener('mousemove', updateMouseCoordinates);
@@ -138,9 +129,14 @@ function clamp (x:number, min:number, max:number):number{
 // This is painful to do but necessary
 let eatNextClick = false;
 
+/**
+ * Open context window for peer (the ... menu)
+ * @param {string} peerID ID of the peer that was clicked on 
+ */
 function OpenContextWindow(peerID:string){
-  if(windowOpened.value == false) eatNextClick = true;
-  windowOpened.value = !windowOpened.value;
+  contextWindowID.value = peerID;
+  eatNextClick = true;
+  windowOpened.value = true;
 }
 
 window.addEventListener("click", (evt) => {
@@ -165,8 +161,6 @@ rpcHandle("Application:HostName", (res) => {
 })
 
 
-
-
 /**
  * Test function for now, will remove later
  * Disconnects all peers around
@@ -175,13 +169,17 @@ function disconnectPeers(){
     rpcInvoke('Application:PeerDisconnect');
 }
 
+/**
+ * Filter peers depending on what has been selected by the user (All | Friend)
+ * @param { Peer[] }peers all peers that are currently connected
+ */
 function sanitize(peers:Peer[]):Peer[]{
   return peers.filter(x => selectedFilter.value == Filter.Friends ? x.isFriend : 1 == 1);
 }
 
 
 /**
- *  Home page has been opened, let's ask the server for connected peers
+ *  New page has been opened, let's ask the server for connected peers
  */
 rpcInvoke("Application:Require:PeersUpdate");
 
@@ -189,7 +187,14 @@ rpcInvoke("Application:Require:PeersUpdate");
  * New client has been discovered / left the network
  */
 rpcHandle("Application:PeersUpdate", (peers:Peer[]) => {
-  connectedPeers.value = peers;
+  if(peers.length > 0){
+    let temp = peers;
+    for(let i:number = 0; i < 10; i++){ 
+      temp.push(peers[0]);
+    }
+    connectedPeers.value = temp;  
+  }
+  else connectedPeers.value = peers;
 }); 
 
 /**
