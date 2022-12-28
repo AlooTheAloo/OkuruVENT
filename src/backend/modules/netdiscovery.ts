@@ -9,8 +9,10 @@ import { rpcInvoke } from "../../rpc";
 import { BrowserWindow } from "electron";
 import { port } from "./constants";
 import { DeviceType, Page, Peer } from '@shared/misc';
-import { getHostName } from './helper';
+import { getHostID, getHostName } from './helper';
 import { currentPage } from '../server';
+
+
 // Connected peers
 let peers:Peer[] = [];
 let canStart = false;
@@ -33,7 +35,7 @@ export function netDiscov(win:BrowserWindow):void{
   }
 
 
-  let message = Buffer.from("Okuru | Searching for devices | " + getHostName());
+  let message = Buffer.from(`Okuru | Searching for devices | ${getHostName()} | ${getHostID()}`);
   var addr = Object.values(os.networkInterfaces()) // Get all network interfaces
   .flat()
   .filter<os.NetworkInterfaceInfo>(
@@ -155,7 +157,7 @@ function startClientNetDiscovery():void{
 
 
     if(addr.indexOf(info.address) != -1){
-      // TODO : uncomment this in distributed version of app
+      // TODO : uncomment this for non-testing dist code
       // return; // Received command from self
     }
     for(let i = 0; i < peers.length; i++){
@@ -169,7 +171,8 @@ function startClientNetDiscovery():void{
     const hostname = msg.toString().split("|")[2].trim();
     console.log(`Peer ${hostname} detected, attempting to connect...`);
 
-
+    const friendID = msg.toString().split("|")[3].trim();
+    console.log(`FriendID is ${ friendID }`)
 
     // Creation of the client
     const client = io(`http://${info.address}:${port}`, {
@@ -194,7 +197,9 @@ function startClientNetDiscovery():void{
   
     // On Connection, add to peers
     client.on("connect", () => {
-      let connectionObject:Peer = { address:(info.address), ID:(client.id), hostname:(hostname), isFriend: false, deviceType: DeviceType.PC};
+
+
+      let connectionObject:Peer = { address:(info.address), ID:(client.id), hostname:(hostname), isFriend: false, deviceType: DeviceType.PC, friendID:friendID};
       for(let i = 0; i < peers.length; i++){
         if(peers[i].address == info.address){   
           client.disconnect();

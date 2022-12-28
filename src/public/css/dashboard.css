@@ -80,6 +80,10 @@ img{
   align-items: center;
 }
 
+.refresh:hover{
+  background-color: rgb(200, 200, 200);
+}
+
 .discoverable-header-container{
   padding: 20px;
   width: 50vw;

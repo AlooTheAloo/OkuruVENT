@@ -74,6 +74,8 @@
     "css-loader": "^6.7.1",
     "electron-prompt": "^1.7.0",
     "electron-squirrel-startup": "^1.0.0",
+    "getmac": "^5.20.0",
+    "node-machine-id": "^1.1.12",
     "socket.io": "^4.5.4",
     "socket.io-client": "^4.5.4",
     "source-map-support": "^0.5.21",

@@ -25,10 +25,10 @@ export enum DeviceType{
 export type Peer = {
   hostname:String;
   address:string; 
+  friendID:string;
   ID:string;
   isFriend:boolean;
   deviceType:DeviceType;
-
 }
 
 

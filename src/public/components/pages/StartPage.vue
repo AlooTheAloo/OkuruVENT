@@ -18,7 +18,7 @@
     //Refs
     const chosenHostname = ref<string>("");
     
-    // Invokes
+    // Invores
     // Get the device name on start for auto fill
     rpcInvoke("Application:Require:DeviceName"); 
     rpcHandle("Application:DeviceName", (hostname:string) =>{

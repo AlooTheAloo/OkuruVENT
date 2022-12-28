@@ -46,7 +46,7 @@
           <p style="text-align: center;">Friends</p>
         </div>
         
-        <div class="clickable refresh" v-on:click="disconnectPeers()" >
+        <div class="clickable refresh animate" v-on:click="disconnectPeers()" >
           <img src="../../images/refresh.svg" style="width: 25px; height:25px;" >
         </div>
       </div>
