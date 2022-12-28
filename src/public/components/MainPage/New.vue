@@ -3,9 +3,29 @@
     <div id="moreOptions" class="device-more-options-context-menu" 
     :style="{marginLeft:contextClickPos.x, marginTop:contextClickPos.y, display:windowOpened?'block':'none'}"
     >
-      <p>
-        {{ contextWindowID }}
+      <p class="center-inner context-menu-text" style="color:#b8b8b8">
+        {{ contextWindowHostName }}
       </p>
+      <hr style="margin-left: 20px; margin-right: 20px; background-color: gray; border: none; height: 1px;">
+      <div class="device-more-options-child animate">
+        <img class="context-icon" src="../../images/friends.svg">
+        <p class="context-menu-text">
+          Add as friend
+        </p>
+      </div>
+      <div class="device-more-options-child animate">
+        <img class="context-icon" src="../../images/link.svg">
+        <p class="context-menu-text">
+          Send text/link
+        </p>
+      </div>
+      <div class="device-more-options-child animate">
+        <img class="context-icon" src="../../images/block.svg">
+        <p class="context-menu-text">
+          Block device
+        </p>
+      </div>
+
     </div>
     <div class="discoverable-header-container">
       <p>You are discoverable as</p>
@@ -71,7 +91,7 @@
           <div class="peer-button clickable center-inner" v-on:click="RequestFileTransfer(peer.ID)">
             <p style="color: black;">+</p>
           </div>
-          <div class="peer-button clickable center-inner" v-on:click="OpenContextWindow(peer.ID)">
+          <div class="peer-button clickable center-inner" v-on:click="OpenContextWindow(peer)">
             <p style="color: black; margin-top: -10px;">
               ...
             </p>
@@ -99,18 +119,17 @@ const selectedFilter = ref<Filter>(Filter.All);
 const hoveringAll = ref<boolean>(false);
 const hoveringFriends = ref<boolean>(false);
 const contextClickPos = ref<{x:string, y:string}>({x:'0px', y:'0px'});
+const lastMousePos = ref<{x:string, y:string}>({x:'0px', y:'0px'});
 const windowOpened = ref<boolean>(false);
-const contextWindowID = ref<string>("");
+const contextWindowHostName = ref<string>("");
 
 // Mouse moving
-window.addEventListener('mousemove', updateMouseCoordinates);
+window.addEventListener('mousemove', (evt:MouseEvent) =>{
+  const x = clamp(evt.clientX - 95, 12, window.innerWidth) + "px";
+  const y = clamp(evt.clientY, 12, window.innerHeight - 170)   + "px";
+  lastMousePos.value = {x:x, y:y}; 
+});
 
-function updateMouseCoordinates(evt:MouseEvent){
-  if(windowOpened.value) return;
-  const x = clamp(evt.clientX - 90, 12, window.innerWidth - 300) + "px";
-  const y = clamp(evt.clientY, 12, window.innerHeight - 412)   + "px";
-  contextClickPos.value = {x:x, y:y}; 
-}
 
 /**
  * Helper method to clamp a number. Assigns a maximum and a minimum to a number, 
@@ -131,10 +150,11 @@ let eatNextClick = false;
 
 /**
  * Open context window for peer (the ... menu)
- * @param {string} peerID ID of the peer that was clicked on 
+ * @param {Peer} peer Object of the peer that was clicked on 
  */
-function OpenContextWindow(peerID:string){
-  contextWindowID.value = peerID;
+function OpenContextWindow(peer:Peer){
+  contextClickPos.value = lastMousePos.value; 
+  contextWindowHostName.value = peer.hostname;
   eatNextClick = true;
   windowOpened.value = true;
 }
@@ -187,14 +207,7 @@ rpcInvoke("Application:Require:PeersUpdate");
  * New client has been discovered / left the network
  */
 rpcHandle("Application:PeersUpdate", (peers:Peer[]) => {
-  if(peers.length > 0){
-    let temp = peers;
-    for(let i:number = 0; i < 10; i++){ 
-      temp.push(peers[0]);
-    }
-    connectedPeers.value = temp;  
-  }
-  else connectedPeers.value = peers;
+  connectedPeers.value = peers;
 }); 
 
 /**

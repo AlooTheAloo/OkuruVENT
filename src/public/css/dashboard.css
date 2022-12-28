@@ -192,6 +192,7 @@ img{
   user-select: none; 
   height: 45vh; 
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .is-friend{
@@ -202,13 +203,42 @@ img{
 }
 
 .device-more-options-context-menu{
+  display: flex;
   box-shadow: 5px 5px 50px rgba(0, 0, 0, 0.4) ;
   position: absolute;
   display: flex;
   width: 15vw;
-  height: 60vh;
   background-color: #18191C;
-  border-radius: 20px;
+  border-radius: 10px;
   z-index: 1;
   opacity: 1;
+  padding: 10px;
+
+}
+
+.device-more-options-child{
+  gap: 5px;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 5px;
+  display: flex;
+  background-color: #18191C;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.device-more-options-child:hover{
+  background-color: #2274c7;
+}
+
+.context-icon{
+  width: 20px;
+  vertical-align: center;
+  filter: invert();
+}
+
+.context-menu-text{
+  font-size: 15px;
 }

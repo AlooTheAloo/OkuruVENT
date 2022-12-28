@@ -23,7 +23,7 @@ export enum DeviceType{
 }
 
 export type Peer = {
-  hostname:String;
+  hostname:string;
   address:string; 
   friendID:string;
   ID:string;
@@ -31,5 +31,8 @@ export type Peer = {
   deviceType:DeviceType;
 }
 
-
+export type Friend = {
+  lastHostname:string,
+  friendID:string
+}
 

@@ -9,7 +9,7 @@ import { rpcInvoke } from "../../rpc";
 import { BrowserWindow } from "electron";
 import { port } from "./constants";
 import { DeviceType, Page, Peer } from '@shared/misc';
-import { getHostID, getHostName } from './helper';
+import { getHostID, getHostName, isFriend } from './helper';
 import { currentPage } from '../server';
 
 
@@ -33,7 +33,6 @@ export function netDiscov(win:BrowserWindow):void{
   if(broadcastServer != null){
     broadcastServer.close();
   }
-
 
   let message = Buffer.from(`Okuru | Searching for devices | ${getHostName()} | ${getHostID()}`);
   var addr = Object.values(os.networkInterfaces()) // Get all network interfaces
@@ -166,20 +165,18 @@ function startClientNetDiscovery():void{
       }
     } 
     
-
     // Decompose packet
     const hostname = msg.toString().split("|")[2].trim();
     console.log(`Peer ${hostname} detected, attempting to connect...`);
 
     const friendID = msg.toString().split("|")[3].trim();
-    console.log(`FriendID is ${ friendID }`)
-
+    console.log(`FriendID is ${ friendID }`);
     // Creation of the client
     const client = io(`http://${info.address}:${port}`, {
       transports: ['websocket'],
       reconnection: false
     });
-    
+        
     // Connection error :(
     client.on("connect_error", (err) => {  
       console.log(`connect_error due to ${err.message}`);
@@ -199,7 +196,7 @@ function startClientNetDiscovery():void{
     client.on("connect", () => {
 
 
-      let connectionObject:Peer = { address:(info.address), ID:(client.id), hostname:(hostname), isFriend: false, deviceType: DeviceType.PC, friendID:friendID};
+      let connectionObject:Peer = { address:(info.address), ID:(client.id), hostname:(hostname), isFriend: isFriend(friendID, hostname), deviceType: DeviceType.PC, friendID:friendID};
       for(let i = 0; i < peers.length; i++){
         if(peers[i].address == info.address){   
           client.disconnect();
