@@ -9,14 +9,14 @@ import { hostname } from 'os';
 import { sep } from 'path';
 
 // Modules
-import { netDiscov, SendPeersToRenderer as UpdatePeers } from './modules/netdiscovery'; // Network scanning module
-import { createModuleForServer as fileReceive } from "./modules/fileReceive";
+import { netDiscov, SendPeersToRenderer, SendPeersToRenderer as UpdatePeers } from './modules/netdiscovery'; // Network scanning module
+import { createModuleForServer as createServerModule } from "./modules/fileReceive";
 import { port } from "./modules/constants";
 import { rpcInvoke } from "../rpc";
 import { createApp } from "./modules/generateApp";
 import { Page } from "@shared/misc";
 import { existsSync } from "original-fs";
-import { getHostName } from "./modules/helper";
+import { addFriend, getHostName, removeFriend } from "./modules/helper";
 
 // Server Vars
 const server = new Server(port, {pingInterval:2000, pingTimeout:6000, transports: ['websocket'], maxHttpBufferSize: 1e25});
@@ -31,7 +31,7 @@ let mainWindow:BrowserWindow|undefined = undefined;
 server.disconnectSockets();
 server.on("connection", (socket:Socket) => { 
   if(mainWindow == undefined || mainWindow == null) { socket.disconnect(); return; } 
-  fileReceive(socket, mainWindow);
+  createServerModule(socket, mainWindow);
 })
 
 // Temporary test function to eject all peers from your network
@@ -59,6 +59,16 @@ ipcMain.handle("Application:Require:ApplicationHasBeenSetup", () => {
 
 ipcMain.handle("Application:Require:HostName", () =>{
   rpcInvoke("Application:HostName", getHostName())
+})
+
+ipcMain.handle("Application:addAsFriend", (evt:Event, hostname:string, friendID:string) =>{
+  addFriend(friendID, hostname);
+  SendPeersToRenderer();
+})
+
+ipcMain.handle("Application:removeFriend", (evt:Event, friendID:string) =>{
+  removeFriend(friendID);
+  SendPeersToRenderer();
 })
 
 /**

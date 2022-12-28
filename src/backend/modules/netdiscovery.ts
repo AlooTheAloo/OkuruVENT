@@ -14,10 +14,11 @@ import { currentPage } from '../server';
 
 
 // Connected peers
-let peers:Peer[] = [];
+export let peers:Peer[] = [];
 let canStart = false;
 let mainwindow:BrowserWindow;
 let broadcastServer:dgram.Socket;
+
 /**
  * @param win electron window to send notifications to 
  */
@@ -124,7 +125,6 @@ function getSubnetworkAddr(address:string, mask:string):string {
   
   /**
    * Converts a decimal number to binary representation
-   *
    * @param dec {number} Decimal number
    * @returns {String} Binary representation
    */

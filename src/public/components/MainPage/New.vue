@@ -4,13 +4,13 @@
     :style="{marginLeft:contextClickPos.x, marginTop:contextClickPos.y, display:windowOpened?'block':'none'}"
     >
       <p class="center-inner context-menu-text" style="color:#b8b8b8">
-        {{ contextWindowHostName }}
+        {{ contextWindowPeer == undefined ? "" : contextWindowPeer.hostname }}
       </p>
       <hr style="margin-left: 20px; margin-right: 20px; background-color: gray; border: none; height: 1px;">
-      <div class="device-more-options-child animate">
+      <div class="device-more-options-child animate" v-on:click="contextWindowPeer == undefined ? () => {} : (contextWindowPeer.isFriend ? removeFriend() : addAsFriend())">
         <img class="context-icon" src="../../images/friends.svg">
         <p class="context-menu-text">
-          Add as friend
+         {{ contextWindowPeer == undefined ? "" : (contextWindowPeer?.isFriend ? "Remove" : "Add as") }} friend
         </p>
       </div>
       <div class="device-more-options-child animate">
@@ -121,7 +121,7 @@ const hoveringFriends = ref<boolean>(false);
 const contextClickPos = ref<{x:string, y:string}>({x:'0px', y:'0px'});
 const lastMousePos = ref<{x:string, y:string}>({x:'0px', y:'0px'});
 const windowOpened = ref<boolean>(false);
-const contextWindowHostName = ref<string>("");
+const contextWindowPeer = ref<Peer>();
 
 // Mouse moving
 window.addEventListener('mousemove', (evt:MouseEvent) =>{
@@ -130,20 +130,20 @@ window.addEventListener('mousemove', (evt:MouseEvent) =>{
   lastMousePos.value = {x:x, y:y}; 
 });
 
+/**
+ * Add contextWindowPeer as friend
+ */
+function addAsFriend(){
+  rpcInvoke("Application:addAsFriend", contextWindowPeer.value?.hostname, contextWindowPeer.value?.friendID);
+}
 
 /**
- * Helper method to clamp a number. Assigns a maximum and a minimum to a number, 
- * and if it goes past, it gets reduced to it <br>
- * @param {number} x the number to clamp
- * @param {number} min the minimum value to clamp it to
- * @param {number} max the maximum value to clamp it to
- * @returns {number} the clamped number 
+ * Remove contextWindowPeer as friend
  */
-function clamp (x:number, min:number, max:number):number{
-  if(x < min) return min;
-  if (x > max) return max;
-  return x;
+function removeFriend(){
+  rpcInvoke("Application:removeFriend", contextWindowPeer.value?.friendID);
 }
+
 
 // This is painful to do but necessary
 let eatNextClick = false;
@@ -154,11 +154,14 @@ let eatNextClick = false;
  */
 function OpenContextWindow(peer:Peer){
   contextClickPos.value = lastMousePos.value; 
-  contextWindowHostName.value = peer.hostname;
+  contextWindowPeer.value = peer;
   eatNextClick = true;
   windowOpened.value = true;
 }
 
+/**
+ * Click off of moreOptions
+ */
 window.addEventListener("click", (evt) => {
   if(eatNextClick){
     eatNextClick = false;
@@ -171,14 +174,7 @@ window.addEventListener("click", (evt) => {
 })
 
 
-/**
- *  Page loaded, we want to get devicename information
- *  from main process
- */
- rpcInvoke("Application:Require:HostName");
-rpcHandle("Application:HostName", (res) => {
-  deviceName.value = res;
-})
+
 
 
 /**
@@ -197,6 +193,14 @@ function sanitize(peers:Peer[]):Peer[]{
   return peers.filter(x => selectedFilter.value == Filter.Friends ? x.isFriend : 1 == 1);
 }
 
+/**
+ *  Page loaded, we want to get devicename information
+ *  from main process
+ */
+rpcInvoke("Application:Require:HostName");
+rpcHandle("Application:HostName", (res) => {
+  deviceName.value = res;
+})
 
 /**
  *  New page has been opened, let's ask the server for connected peers
@@ -209,6 +213,20 @@ rpcInvoke("Application:Require:PeersUpdate");
 rpcHandle("Application:PeersUpdate", (peers:Peer[]) => {
   connectedPeers.value = peers;
 }); 
+
+/**
+* Helper method to clamp a number. Assigns a maximum and a minimum to a number, 
+* and if it goes past, it gets reduced to it <br>
+* @param {number} x the number to clamp
+* @param {number} min the minimum value to clamp it to
+* @param {number} max the maximum value to clamp it to
+* @returns {number} the clamped number 
+*/
+function clamp (x:number, min:number, max:number):number{
+  if(x < min) return min;
+  if (x > max) return max;
+  return x;
+}
 
 /**
  * Requests a file transfer to the connected peer
