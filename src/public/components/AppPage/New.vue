@@ -32,7 +32,6 @@
       <p class="deviceName">
         <img src="../../images/computer.svg" style="width: 25px;">
         {{ deviceName }}
-        <img src="../../images/edit.svg" style="margin-left:10px; width: 20px;">
       </p>
       <p>
         By 

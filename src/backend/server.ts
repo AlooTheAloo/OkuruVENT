@@ -66,13 +66,14 @@ ipcMain.handle("Application:Require:DeviceName", () => {
 }) 
 ipcMain.handle("Application:StartPage:SendHostName", (evt:Event, chosenHostname:string) => {
   createApp(appDataPath, chosenHostname);
-  rpcInvoke("Application:ChangePage", Page.MainPage);
-  currentPage = Page.MainPage;
+  rpcInvoke("Application:ChangePage", Page.AppPage);
+  currentPage = Page.AppPage;
 })
 
 ipcMain.handle("Application:Require:ApplicationHasBeenSetup", () => {
+  console.log("setup called")
   const setup = existsSync(`${appDataPath}User${sep}`);
-  if(setup) { rpcInvoke("Application:ChangePage", Page.MainPage); currentPage = Page.MainPage }
+  if(setup) { rpcInvoke("Application:ChangePage", Page.AppPage); currentPage = Page.AppPage }
   else { rpcInvoke("Application:ChangePage", Page.StartPage); currentPage = Page.StartPage }
 });
 

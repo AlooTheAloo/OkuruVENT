@@ -1,6 +1,6 @@
 <template>
 
-<Sidebar
+    <Sidebar
     @tabChange="changeTab"
     :active-tab="activeTab"/>
     <!-- Current device name-->
@@ -28,12 +28,12 @@ import { Tab } from '@shared/misc';
 
 
 // Pages
-import Settings from "../MainPage/Settings.vue";
-import Transfers from "../MainPage/Transfers.vue";
-import History from "../MainPage/History.vue";
-import Friends from "../MainPage/Friends.vue";
-import New from "../MainPage/New.vue";
-import Sidebar from "../MainPage/Sidebar.vue";
+import Settings from "../AppPage/Settings.vue";
+import Transfers from "../AppPage/Transfers.vue";
+import History from "../AppPage/History.vue";
+import Friends from "../AppPage/Friends.vue";
+import New from "../AppPage/New.vue";
+import Sidebar from "../AppPage/Sidebar.vue";
 
 
 // Refs

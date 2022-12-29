@@ -8,7 +8,7 @@ export enum Tab {
 
 export enum Page{
   StartPage,
-  MainPage,
+  AppPage,
   None
 }
 

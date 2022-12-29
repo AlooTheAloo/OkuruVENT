@@ -14,7 +14,7 @@
   
   // Imports
   import { Friend } from '@shared/misc';
-import { ref } from 'vue';
+  import { ref } from 'vue';
   import { rpcHandle, rpcInvoke } from '../../js/rpc';
   
   const friendsList = ref<Friend[]>();

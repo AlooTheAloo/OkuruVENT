@@ -1,9 +1,9 @@
 <template>
     <StartPage v-if="currentPage==Page.StartPage"/>
-    <MainPage v-else-if="currentPage==Page.MainPage"/>
+    <AppPage v-else-if="currentPage==Page.AppPage"/>
     <!-- Redirecting... -->
     <div v-else-if="currentPage==Page.None"></div>
-    <div v-else><p>Uhhh, you're not supposed to be here</p></div>
+    <div v-else><p>Uhhh you're not supposed to be here</p></div>
 </template>
 <script setup lang="ts">
 
@@ -11,7 +11,7 @@
     import { ref } from 'vue';
     // Pages
     import StartPage from "./StartPage.vue";
-    import MainPage from "./MainPage.vue";
+    import AppPage from "./AppPage.vue";
     import { rpcHandle, rpcInvoke } from '../../js/rpc';
     import { Page } from '@shared/misc'; 
     

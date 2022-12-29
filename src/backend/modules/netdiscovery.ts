@@ -32,7 +32,7 @@ let broadcastServer:dgram.Socket;
  * @param win electron window to send notifications to 
  */
 export function netDiscov(win:BrowserWindow):void{
-  if(currentPage != Page.MainPage) return; // No discovery unless we are on main page
+  if(currentPage != Page.AppPage) return; // No discovery unless we are on main page
 
 
   if(!canStart){
