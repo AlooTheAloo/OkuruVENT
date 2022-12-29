@@ -3,10 +3,14 @@ import { existsSync, appendFileSync, rmSync, writeFileSync } from "original-fs";
 import { sep } from "path";
 import { Socket } from "socket.io";
 import { getHostName } from "./helper";
+import { EventEmitter } from "events";
 let transfers:{id:string, filepath:string}[] = [];
 let shownNotification:Notification;
 
 export default { createModuleForServer }
+
+export const eventHandler = new EventEmitter(); 
+
 
 /**
  * The 'Constructor' of fileReceive, creates a file receiver for the server accept incoming file transfers
@@ -16,6 +20,14 @@ export default { createModuleForServer }
  */
 export function createModuleForServer(socket:Socket, mainwindow:BrowserWindow):void{
     
+    eventHandler.on(`Application:DisconnectSocket:${socket.id}`, function handler (){
+        console.log("Disconnecting socket...")
+        socket.disconnect();
+        socket.offAny();
+        eventHandler.removeListener(`Application:DisconnectSocket:${socket.id}`, handler);
+    })
+
+
     // Ask for transfer
     socket.on("Transfer:RequestFileTransfer", (filename:string, hostname:string, transferID:string) =>{
         // Notification

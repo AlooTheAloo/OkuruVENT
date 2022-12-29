@@ -17,6 +17,12 @@ export enum Filter{
   Friends
 }
 
+export enum DiscoveryType{
+  All,
+  Friends,
+  None
+}
+
 export enum DeviceType{
   PC,
   Mobile

@@ -106,6 +106,53 @@ img{
   color: black;
 }
 
+.discovery-selector-dropdown{
+  color: black;
+  width: 10vw;
+  position: absolute;
+  z-index: 1;
+  margin-top: 160px;
+  margin-left: 250px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+}
+
+.discovery-selector-child-element{
+  border-radius: inherit;
+  background-color: white;
+}
+
+.list-top-element{
+  border-bottom-right-radius: 0px; 
+  border-bottom-left-radius: 0px;
+}
+
+.list-middle-element{
+  border-radius: 0px;
+}
+
+.list-bottom-element{
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+
+}
+
+
+.discovery-selector-child-element:hover{
+  background-color: rgb(200, 200, 200);
+
+}
+
+
+
+.discovery-selector-dropdown-text{
+  color: black; 
+  text-align: center;
+  padding: 10px;
+}
+
 .connected-devices{
   box-shadow: 5px 5px 50px rgba(0, 0, 0, 0.4) ;
   border-radius: 20px;
@@ -113,6 +160,7 @@ img{
   margin: 0;
   width: calc(50vw + 40px);  
   position: absolute;
+  z-index: 0;
   left: 50%;
   transform: translate(-50%, 0%);
   margin-top: 27vh;
@@ -242,3 +290,4 @@ img{
 .context-menu-text{
   font-size: 15px;
 }
+

@@ -36,13 +36,28 @@
       </p>
       <p>
         By 
-        <div class="clickable discovery-selector" >
+        <div class="clickable discovery-selector" v-on:click="openDropdown()">
           <p style="margin-left: 10px; color: black;">
             Everyone
           </p>
           <img src="../../images/expand.svg" style="display: inline; position: absolute; margin-top: -27px; margin-left: 95px; width: 30px; height: 30px;">
         </div>
       </p>
+      
+    </div>
+
+    <div class="discovery-selector-dropdown" :style="{
+        display: dropdownOpened ? 'block' : 'none' 
+      }">
+      <div class="discovery-selector-child-element clickable animate list-top-element" v-on:click="setDiscoveryType(DiscoveryType.All)">
+        <p class="discovery-selector-dropdown-text">Everyone</p>
+      </div>
+      <div class="discovery-selector-child-element clickable animate list-middle-element" v-on:click="setDiscoveryType(DiscoveryType.Friends)">
+        <p class="discovery-selector-dropdown-text">Friends</p>
+      </div>
+      <div class="discovery-selector-child-element clickable animate list-bottom-element" v-on:click="setDiscoveryType(DiscoveryType.None)">
+        <p class="discovery-selector-dropdown-text">No one</p>
+      </div>
     </div>
 
     <div class="connected-devices"> 
@@ -110,7 +125,7 @@
 // Imports
 import { ref } from 'vue';
 import { rpcHandle, rpcInvoke } from '../../js/rpc';
-import { Filter, Peer } from '@shared/misc';
+import { Filter, Peer, DiscoveryType } from '@shared/misc';
 
 // Refs
 const connectedPeers = ref<Peer[]>([]);
@@ -121,6 +136,7 @@ const hoveringFriends = ref<boolean>(false);
 const contextClickPos = ref<{x:string, y:string}>({x:'0px', y:'0px'});
 const lastMousePos = ref<{x:string, y:string}>({x:'0px', y:'0px'});
 const windowOpened = ref<boolean>(false);
+const dropdownOpened = ref<boolean>(false);
 const contextWindowPeer = ref<Peer>();
 
 // Mouse moving
@@ -146,40 +162,72 @@ function removeFriend(){
 
 
 // This is painful to do but necessary
-let eatNextClick = false;
+let eatNextClickContextMenu = false;
+let eatNextClickDropdown = false;
 
 /**
  * Open context window for peer (the ... menu)
  * @param {Peer} peer Object of the peer that was clicked on 
  */
 function OpenContextWindow(peer:Peer){
+  console.log("received open context window");
   contextClickPos.value = lastMousePos.value; 
   contextWindowPeer.value = peer;
-  eatNextClick = true;
+  eatNextClickContextMenu = true;
   windowOpened.value = true;
+}
+
+/**
+ * Open dropdown menu
+ */
+function openDropdown(){
+  if(dropdownOpened.value) return;
+  dropdownOpened.value = true; 
+  eatNextClickDropdown = true;
 }
 
 /**
  * Click off of moreOptions
  */
 window.addEventListener("click", (evt) => {
-  if(eatNextClick){
-    eatNextClick = false;
-    return;
+  console.log("received click");
+  if(eatNextClickContextMenu){
+    console.log("1");
+    eatNextClickContextMenu = false;
   }
-  const moreOptionsElement = document.getElementById("moreOptions") // :death:
-  if(moreOptionsElement != evt.target){
-    windowOpened.value = false;
+  else{
+    console.log("2");
+
+    const moreOptionsElement = document.getElementById("moreOptions") // :death:
+    if(moreOptionsElement != evt.target){
+      windowOpened.value = false;
+    }
   }
+
+  if(eatNextClickDropdown){
+    eatNextClickDropdown = false;
+  }
+  else{
+    dropdownOpened.value = false;
+  }
+  
+
+  
 })
 
 
+/**
+ * Changes who can discover you
+ * @param { DiscoveryType } newType the discovery type to switch to
+ */
+function setDiscoveryType(newType:DiscoveryType){
+  rpcInvoke("Application:Set:DiscoveryType", newType);
+}
 
 
 
 /**
- * Test function for now, will remove later
- * Disconnects all peers around
+ * Disconnects all peers around, refreshes frontend AND backend
  */
 function disconnectPeers(){
     rpcInvoke('Application:PeerDisconnect');

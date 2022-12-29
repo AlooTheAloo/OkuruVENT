@@ -2,8 +2,9 @@ import { machineIdSync } from "node-machine-id";
 import { readFileSync, writeFileSync } from "original-fs";
 import { appDataPath } from "../server";
 import { sep } from "path";
-import { Friend } from "@shared/misc";
-import { peers } from "./netdiscovery";
+import { DiscoveryType, Friend } from "@shared/misc";
+import { discovType, peers } from "./netdiscovery";
+import { eventHandler } from "./fileReceive";
 
 /**
  * Fetches the hostname of the current machine, easier than reading file every time
@@ -43,6 +44,17 @@ export function isFriend(friendID:string, hostname:string):boolean{
     return false;
 }
 
+
+export function isBlocked(friendID:string):boolean{
+    let blocked:Friend[] = JSON.parse(readFileSync(`${appDataPath}User${ sep }blocked.txt`).toString()); // Read file
+    for(let i = 0; i < blocked.length; i++){ // Go through the array
+        if(blocked[i].friendID == friendID){ // We have them blocked!
+            return true;
+        }
+    }
+    return false;
+}
+
 /**
  * Adds a peer as a friend to the local database
  * @param friendID FriendID of the peer to add to the local database
@@ -61,16 +73,52 @@ export function addFriend(friendID:string, hostname:string):void{
     }
         
 }
-
+/**
+ * Removes a peer as a friend from the local database
+ * @param friendID FriendID of the peer to remove from the local database
+ */
 export function removeFriend(friendID:string):void{
     let friends:Friend[] = JSON.parse(readFileSync(`${appDataPath}User${ sep }friends.txt`).toString()); // Read
     
-    friends.filter(x => x.friendID != friendID); // Remove
+    friends = friends.filter(x => x.friendID != friendID); // Remove
     writeFileSync(`${appDataPath}User${ sep }friends.txt`, JSON.stringify(friends)); // Write
     for(let i = 0; i < peers.length; i++){ // Filter
         if(peers[i].friendID == friendID){
+
+            if(discovType == DiscoveryType.Friends){
+                eventHandler.emit(`Application:DisconnectSocket:${peers[i].ID}`)
+            }
+
             peers[i].isFriend = false;
             break;
         }
     }
+}
+
+export function disconnectNonFriends(){
+    let friends:Friend[] = JSON.parse(readFileSync(`${appDataPath}User${ sep }friends.txt`).toString()); // Read
+    let friendsIDs:string[] = [];
+    for(let i = 0; i < friends.length; i++){
+        friendsIDs.push(friends[i].friendID);
+    }
+    for(let i = 0; i < peers.length; i++){ // Filter
+        if(!friendsIDs.includes(peers[i].friendID)){
+            eventHandler.emit(`Application:DisconnectSocket:${peers[i].ID}`)
+        }
+    }
+}
+
+
+export function disconnectEveryone(){
+    for(let i = 0; i < peers.length; i++){ // Filter
+            eventHandler.emit(`Application:DisconnectSocket:${peers[i].ID}`)
+    }
+}
+export function canBeDiscoveredBy(friendID:string, hostname:string):boolean{
+    if(discovType == DiscoveryType.None) return false;
+    if(isBlocked(friendID)) return false;
+    if(discovType == DiscoveryType.Friends){
+        if(!isFriend(friendID, hostname)) return false;
+    }    
+    return true;
 }

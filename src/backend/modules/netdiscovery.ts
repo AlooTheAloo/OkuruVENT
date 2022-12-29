@@ -8,13 +8,22 @@ import os from "os";
 import { rpcInvoke } from "../../rpc";
 import { BrowserWindow } from "electron";
 import { port } from "./constants";
-import { DeviceType, Page, Peer } from '@shared/misc';
-import { getHostID, getHostName, isFriend } from './helper';
+import { DeviceType, DiscoveryType, Page, Peer } from '@shared/misc';
+import { disconnectEveryone, disconnectNonFriends, getHostID, getHostName, isFriend } from './helper';
 import { currentPage } from '../server';
 
 
 // Connected peers
 export let peers:Peer[] = [];
+export let discovType:DiscoveryType = DiscoveryType.Friends;
+
+export function setDiscovType(newDiscovType:DiscoveryType):void{
+  if(newDiscovType == DiscoveryType.Friends) disconnectNonFriends();
+  else if (newDiscovType == DiscoveryType.None) disconnectEveryone();
+  discovType = newDiscovType;
+}
+
+
 let canStart = false;
 let mainwindow:BrowserWindow;
 let broadcastServer:dgram.Socket;
@@ -167,14 +176,13 @@ function startClientNetDiscovery():void{
     
     // Decompose packet
     const hostname = msg.toString().split("|")[2].trim();
-    console.log(`Peer ${hostname} detected, attempting to connect...`);
 
     const friendID = msg.toString().split("|")[3].trim();
-    console.log(`FriendID is ${ friendID }`);
     // Creation of the client
     const client = io(`http://${info.address}:${port}`, {
       transports: ['websocket'],
-      reconnection: false
+      reconnection: false,
+      query: `friendID=${getHostID()}&hostName=${getHostName()}` // HTTP :death:
     });
         
     // Connection error :(
@@ -194,20 +202,22 @@ function startClientNetDiscovery():void{
   
     // On Connection, add to peers
     client.on("connect", () => {
-
-
-      let connectionObject:Peer = { address:(info.address), ID:(client.id), hostname:(hostname), isFriend: isFriend(friendID, hostname), deviceType: DeviceType.PC, friendID:friendID};
       for(let i = 0; i < peers.length; i++){
         if(peers[i].address == info.address){   
           client.disconnect();
           return; // Received netdiscovery from already connected device (wack)
         }
       }   
+
+    });
+
+    client.on("confirm_connection", () => {
+      let connectionObject:Peer = { address:(info.address), ID:(client.id), hostname:(hostname), isFriend: isFriend(friendID, hostname), deviceType: DeviceType.PC, friendID:friendID};
       peers.push(connectionObject)
       rpcInvoke('Application:PeersUpdate', peers)
       console.log(`Peer ${hostname} has joined the network  ! `);
       fileTransfer(client, mainwindow);
-    });
+    })
 
     
 
@@ -215,7 +225,6 @@ function startClientNetDiscovery():void{
     client.on("disconnect", (reason) => {
       for(let i = 0; i < peers.length; i++){
         if(peers[i].address == info.address){   
-          console.log(`Peer ${hostname} has left the network because of ${reason} ! `);
           peers.splice(i, 1);
           rpcInvoke('Application:PeersUpdate', peers);
           break;    
