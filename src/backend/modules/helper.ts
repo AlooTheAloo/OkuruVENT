@@ -45,6 +45,15 @@ export function isFriend(friendID:string, hostname:string):boolean{
 }
 
 
+export function getFriends():Friend[]{
+    return JSON.parse(readFileSync(`${appDataPath}User${ sep }friends.txt`).toString()); // Read file
+}
+
+/**
+ * Check if a certain user is blocked, we terminate the connection if they are
+ * @param friendID the friendID of the person to check if they're a friend or not
+ * @returns true if the user is a friend, false if not
+ */
 export function isBlocked(friendID:string):boolean{
     let blocked:Friend[] = JSON.parse(readFileSync(`${appDataPath}User${ sep }blocked.txt`).toString()); // Read file
     for(let i = 0; i < blocked.length; i++){ // Go through the array
@@ -54,6 +63,17 @@ export function isBlocked(friendID:string):boolean{
     }
     return false;
 }
+
+export function blockPeer(friendID:string, hostname:string){
+    let blocked:Friend[] = JSON.parse(readFileSync(`${appDataPath}User${ sep }blocked.txt`).toString()); // Read file
+    blocked.push({friendID:friendID, lastHostname:hostname});
+    writeFileSync(`${appDataPath}User${ sep }blocked.txt`, JSON.stringify(blocked));
+    if(isFriend(friendID, hostname)){
+        removeFriend(friendID)
+    }
+    disconnectBlocked();
+}
+
 
 /**
  * Adds a peer as a friend to the local database
@@ -114,6 +134,17 @@ export function disconnectEveryone(){
             eventHandler.emit(`Application:DisconnectSocket:${peers[i].ID}`)
     }
 }
+
+export function disconnectBlocked(){
+    for(let i = 0; i < peers.length; i++){ // Iterative algo
+        if(isBlocked(peers[i].friendID)){
+            eventHandler.emit(`Application:DisconnectSocket:${peers[i].ID}`)
+        }
+    }
+}
+
+
+
 export function canBeDiscoveredBy(friendID:string, hostname:string):boolean{
     if(discovType == DiscoveryType.None) return false;
     if(isBlocked(friendID)) return false;

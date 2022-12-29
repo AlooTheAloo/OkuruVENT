@@ -15,7 +15,7 @@ import { currentPage } from '../server';
 
 // Connected peers
 export let peers:Peer[] = [];
-export let discovType:DiscoveryType = DiscoveryType.Friends;
+export let discovType:DiscoveryType = DiscoveryType.All;
 
 export function setDiscovType(newDiscovType:DiscoveryType):void{
   if(newDiscovType == DiscoveryType.Friends) disconnectNonFriends();

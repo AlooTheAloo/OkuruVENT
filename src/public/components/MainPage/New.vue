@@ -19,7 +19,7 @@
           Send text/link
         </p>
       </div>
-      <div class="device-more-options-child animate">
+      <div class="device-more-options-child animate" v-on:click="BlockPeer()">
         <img class="context-icon" src="../../images/block.svg">
         <p class="context-menu-text">
           Block device
@@ -154,6 +154,13 @@ function addAsFriend(){
 }
 
 /**
+ * Block contextWindowPeer 
+ */
+function BlockPeer(){
+  console.log("Blocking peer...");
+  rpcInvoke("Application:BlockPeer", contextWindowPeer.value?.hostname, contextWindowPeer.value?.friendID)
+}
+/**
  * Remove contextWindowPeer as friend
  */
 function removeFriend(){
@@ -170,7 +177,6 @@ let eatNextClickDropdown = false;
  * @param {Peer} peer Object of the peer that was clicked on 
  */
 function OpenContextWindow(peer:Peer){
-  console.log("received open context window");
   contextClickPos.value = lastMousePos.value; 
   contextWindowPeer.value = peer;
   eatNextClickContextMenu = true;
@@ -190,29 +196,24 @@ function openDropdown(){
  * Click off of moreOptions
  */
 window.addEventListener("click", (evt) => {
-  console.log("received click");
   if(eatNextClickContextMenu){
-    console.log("1");
     eatNextClickContextMenu = false;
   }
   else{
-    console.log("2");
-
     const moreOptionsElement = document.getElementById("moreOptions") // :death:
     if(moreOptionsElement != evt.target){
       windowOpened.value = false;
     }
   }
 
+  // depression
   if(eatNextClickDropdown){
     eatNextClickDropdown = false;
   }
   else{
     dropdownOpened.value = false;
   }
-  
 
-  
 })
 
 
@@ -222,6 +223,15 @@ window.addEventListener("click", (evt) => {
  */
 function setDiscoveryType(newType:DiscoveryType){
   rpcInvoke("Application:Set:DiscoveryType", newType);
+  createDiscoveryString(newType);
+}
+
+/**
+ * Converts DiscoveryType to a string and sets it on currentDiscoveryType
+ * @param { DiscoveryType } newType the discovery type to convert to a string
+ */
+function createDiscoveryString(newType:DiscoveryType){
+  //Show discovery type to user
   switch(newType){
     case DiscoveryType.All:
       currentDiscoveryType.value = "Everyone";
@@ -257,8 +267,16 @@ function sanitize(peers:Peer[]):Peer[]{
  *  from main process
  */
 rpcInvoke("Application:Require:HostName");
-rpcHandle("Application:HostName", (res) => {
+rpcHandle("Application:HostName", (res:string) => {
   deviceName.value = res;
+})
+
+/**
+*  Page loaded, we want to get current discovery type
+*/
+rpcInvoke("Application:Require:DiscoveryType");
+rpcHandle("Application:DiscoveryType", (res:DiscoveryType) => {
+  createDiscoveryString(res);
 })
 
 /**
