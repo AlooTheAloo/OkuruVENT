@@ -38,7 +38,7 @@
         By 
         <div class="clickable discovery-selector" v-on:click="openDropdown()">
           <p style="margin-left: 10px; color: black;">
-            Everyone
+            {{ currentDiscoveryType }}
           </p>
           <img src="../../images/expand.svg" style="display: inline; position: absolute; margin-top: -27px; margin-left: 95px; width: 30px; height: 30px;">
         </div>
@@ -138,7 +138,7 @@ const lastMousePos = ref<{x:string, y:string}>({x:'0px', y:'0px'});
 const windowOpened = ref<boolean>(false);
 const dropdownOpened = ref<boolean>(false);
 const contextWindowPeer = ref<Peer>();
-
+const currentDiscoveryType = ref<string>("Everyone");
 // Mouse moving
 window.addEventListener('mousemove', (evt:MouseEvent) =>{
   const x = clamp(evt.clientX - 95, 12, window.innerWidth) + "px";
@@ -222,6 +222,17 @@ window.addEventListener("click", (evt) => {
  */
 function setDiscoveryType(newType:DiscoveryType){
   rpcInvoke("Application:Set:DiscoveryType", newType);
+  switch(newType){
+    case DiscoveryType.All:
+      currentDiscoveryType.value = "Everyone";
+      break;
+    case DiscoveryType.Friends:
+      currentDiscoveryType.value = "Friends";
+      break;
+    case DiscoveryType.None:
+      currentDiscoveryType.value = "No one";
+      break;
+  }  
 }
 
 
