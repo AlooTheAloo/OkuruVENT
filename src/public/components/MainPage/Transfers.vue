@@ -1,6 +1,6 @@
 <template>
     <div class="body">
-        Transfers!
+        <p>Transfers! </p>
     </div>
 </template>
 <style src="../../css/dashboard.css"/>    

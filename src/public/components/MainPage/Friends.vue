@@ -1,6 +1,10 @@
 <template>
     <div class="body">
-      
+      <div v-for="friend in friendsList">
+        <p>
+            {{ friend.lastHostname }}
+        </p>
+      </div>
     </div>
   </template>
   <style src="../../css/dashboard.css"/>    
@@ -19,7 +23,7 @@ import { ref } from 'vue';
   rpcInvoke("Application:Require:FriendsList");
   rpcHandle("Application:FriendsList", (receivedFriendsList:Friend[]) => {
     friendsList.value = receivedFriendsList;
-    console.log("Application:FriendsList");
+    console.log(receivedFriendsList);
   })
 
   
