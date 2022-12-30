@@ -16,7 +16,7 @@ import { rpcInvoke } from "../rpc";
 import { createApp } from "./modules/generateApp";
 import { DiscoveryType, Page } from "@shared/misc";
 import { existsSync } from "original-fs";
-import { addFriend, blockPeer, canBeDiscoveredBy, getFriends, getHostName, removeFriend } from "./modules/helper";
+import { addFriend, blockPeer, canBeDiscoveredBy, getBlocked, getFriends, getHostName, removeFriend } from "./modules/helper";
 
 // Server Vars
 const server = new Server(port, {pingInterval:2000, pingTimeout:6000, transports: ['websocket'], maxHttpBufferSize: 1e25});
@@ -108,6 +108,9 @@ ipcMain.handle("Application:Require:DiscoveryType", (evt:Event) => {
   rpcInvoke("Application:DiscoveryType", discovType);
 })
 
+ipcMain.handle("Application:Require:BlockedList", (evt:Event) => {
+  rpcInvoke("Application:BlockedList", getBlocked());
+})
 
 /**
  *  @param { BrowserWindow } win the electron window to send notifications to

@@ -4,9 +4,6 @@
     placeholder="Your Name (shit anime)"
     v-model="chosenHostname"/>
     <button v-on:click="handleHostName()">Button</button>
-
-
-        
     </template>
     
     <script setup lang="ts">
@@ -33,6 +30,5 @@
     
     <style scoped>
       @import '../../css/global.css';
-      @import '../../css/dashboard.css';
     
     </style>    

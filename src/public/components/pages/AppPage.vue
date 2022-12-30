@@ -7,7 +7,7 @@
 
     <div style="margin-left: 100px; overflow-x: hidden;">
       <New   v-if="activeTab == Tab.New"/>
-      <Friends v-else-if="activeTab == Tab.Friends"/>
+      <Devices v-else-if="activeTab == Tab.Devices"/>
       <Transfers v-else-if="activeTab == Tab.Transfers"/>
       <History v-else-if="activeTab == Tab.History"/>
       <Settings  v-else-if="activeTab == Tab.Settings"/>
@@ -20,7 +20,6 @@
 </template>
 
 <script setup lang="ts">
-
 // Imports
 import { ref } from 'vue';
 import { rpcHandle } from '../../js/rpc';
@@ -31,9 +30,10 @@ import { Tab } from '@shared/misc';
 import Settings from "../AppPage/Settings.vue";
 import Transfers from "../AppPage/Transfers.vue";
 import History from "../AppPage/History.vue";
-import Friends from "../AppPage/Friends.vue";
+import Devices from "../AppPage/Devices.vue";
 import New from "../AppPage/New.vue";
 import Sidebar from "../AppPage/Sidebar.vue";
+
 
 
 // Refs
@@ -64,7 +64,6 @@ rpcHandle("Application:PeersUpdate", (peers:{address:string, ID:string, hostname
 
 <style scoped>
   @import '../../css/global.css';
-  @import '../../css/dashboard.css';
 
 </style>
 

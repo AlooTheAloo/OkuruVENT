@@ -6,7 +6,7 @@
       <p class="center-inner context-menu-text" style="color:#b8b8b8">
         {{ contextWindowPeer == undefined ? "" : contextWindowPeer.hostname }}
       </p>
-      <hr style="margin-left: 20px; margin-right: 20px; background-color: gray; border: none; height: 1px;">
+      <hr class="hrStyle">
       <div class="device-more-options-child animate" v-on:click="contextWindowPeer == undefined ? () => {} : (contextWindowPeer.isFriend ? removeFriend() : addAsFriend())">
         <img class="context-icon" src="../../images/friends.svg">
         <p class="context-menu-text">
@@ -29,7 +29,7 @@
     </div>
     <div class="discoverable-header-container">
       <p>You are discoverable as</p>
-      <p class="deviceName">
+      <p class="bold large">
         <img src="../../images/computer.svg" style="width: 25px;">
         {{ deviceName }}
       </p>
@@ -85,10 +85,10 @@
         </div>
       </div>
       <hr style=" margin-left: 30px; margin-right: 30px;">
-    <div class="all-clients-container" 
-    :style="{justifyContent: connectedPeers?.length == 0 ? 'center' : 'start',
-              alignItems: connectedPeers?.length == 0 ? 'center' : 'start'
-            }"> 
+      <div class="all-clients-container" 
+      :style="{justifyContent: connectedPeers?.length == 0 ? 'center' : 'start',
+                alignItems: connectedPeers?.length == 0 ? 'center' : 'start'
+              }"> 
       <p v-if="connectedPeers?.length == 0">
           Searching for available devices...
       </p>
@@ -116,7 +116,8 @@
   </div>
   </div>
 </template>
-<style src="../../css/dashboard.css"/>    
+
+<style src="../../css/mainPage.css"/>    
 <style src="../../css/global.css"/>    
 
 <script setup lang="ts">
@@ -140,7 +141,7 @@ const contextWindowPeer = ref<Peer>();
 const currentDiscoveryType = ref<string>("Everyone");
 // Mouse moving
 window.addEventListener('mousemove', (evt:MouseEvent) =>{
-  const x = clamp(evt.clientX - 95, 12, window.innerWidth) + "px";
+  const x = clamp(evt.clientX - 230, 12, window.innerWidth) + "px";
   const y = clamp(evt.clientY, 12, window.innerHeight - 170)   + "px";
   lastMousePos.value = {x:x, y:y}; 
 });

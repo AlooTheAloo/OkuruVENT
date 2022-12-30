@@ -49,6 +49,11 @@ export function getFriends():Friend[]{
     return JSON.parse(readFileSync(`${appDataPath}User${ sep }friends.txt`).toString()); // Read file
 }
 
+export function getBlocked():Friend[]{
+    return JSON.parse(readFileSync(`${appDataPath}User${ sep }blocked.txt`).toString())
+}
+
+
 /**
  * Check if a certain user is blocked, we terminate the connection if they are
  * @param friendID the friendID of the person to check if they're a friend or not

@@ -1,6 +1,6 @@
 export enum Tab {
   New,
-  Friends,
+  Devices,
   History,
   Transfers,
   Settings

@@ -35,9 +35,9 @@
         @click="changeTab(Tab.New)"
         >
         <img 
-        src="../../images/friends.svg"
+        src="../../images/devices.svg"
         class="sideBarButton"
-        @click="changeTab(Tab.Friends)"
+        @click="changeTab(Tab.Devices)"
         >
         <img 
         src="../../images/transfers.svg"
@@ -87,7 +87,7 @@ const emit = defineEmits<{
 ///Constants
 const tabIndicatorPositions: Record<Tab, string> = {
   [Tab.New]: "189px",
-  [Tab.Friends]: "256px",
+  [Tab.Devices]: "256px",
   [Tab.Transfers]: "323px",
   [Tab.History]: "389px",
   [Tab.Settings]: "457px",
@@ -95,10 +95,10 @@ const tabIndicatorPositions: Record<Tab, string> = {
 
 const tabIndicatorSizes: Record<Tab, string> = {
   [Tab.New]: "85px",
-  [Tab.Friends]: "110px",
+  [Tab.Devices]: "120px",
   [Tab.Transfers]: "130px",
   [Tab.History]: "110px",
-  [Tab.Settings]: "125px",
+  [Tab.Settings]: "120px",
 };
 
 ///Computed properties

@@ -54,8 +54,11 @@ body{
   margin: 0;
 }
 
-.deviceName{
+.bold{
   font-family: poppins-bold;
+}
+
+.large{
   font-size: 30px; 
 }
 
@@ -287,3 +290,42 @@ img{
   font-size: 15px;
 }
 
+
+.all-friends-container{ 
+  box-shadow: 5px 5px 50px rgba(0, 0, 0, 0.4) ;
+  border-radius: 20px;
+  background-color: #2A2E32;
+  margin: 0;
+  width: calc(50vw + 40px);  
+  position: absolute;
+  z-index: 0;
+  margin-top: 20vh;
+  height: 65vh;
+}
+
+.friends-list{
+  box-shadow: 5px 5px 50px rgba(0, 0, 0, 0.4) ;
+  border-radius: 20px;
+  background-color: #2A2E32;
+  margin: 0;
+  width: calc(80vw);  
+  position: absolute;
+  z-index: 0;
+  height: 80vh; 
+}
+
+.friend-element{
+  margin-left: 30px;
+  margin-right: 30px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  display: flex;
+}
+
+.hrStyle{
+  margin-left: 20px; 
+  margin-right: 20px; 
+  background-color: gray;
+  border: none; 
+  height: 1px;
+}
