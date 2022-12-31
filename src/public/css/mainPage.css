@@ -113,7 +113,7 @@ img{
   position: absolute;
   z-index: 1;
   margin-top: 160px;
-  margin-left: 250px;
+  margin-left: -455px;
   border-radius: 10px;
   display: flex;
   flex-direction: column;

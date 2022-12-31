@@ -163,7 +163,10 @@ function startClientNetDiscovery():void{
     .filter(({ family, internal }) => family === "IPv4" && !internal)
     .map(({ address }) => address);
 
+// Decompose packet
+const hostname = msg.toString().split("|")[2].trim();
 
+const friendID = msg.toString().split("|")[3].trim();
     if(addr.indexOf(info.address) != -1){
       // TODO : uncomment this for non-testing dist code
       // return; // Received command from self
@@ -174,10 +177,7 @@ function startClientNetDiscovery():void{
       }
     } 
     
-    // Decompose packet
-    const hostname = msg.toString().split("|")[2].trim();
-
-    const friendID = msg.toString().split("|")[3].trim();
+    
     // Creation of the client
     const client = io(`http://${info.address}:${port}`, {
       transports: ['websocket'],

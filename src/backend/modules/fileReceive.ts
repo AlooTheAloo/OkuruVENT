@@ -28,6 +28,7 @@ export function createModuleForServer(socket:Socket, mainwindow:BrowserWindow):v
     })
 
 
+
     // Ask for transfer
     socket.on("Transfer:RequestFileTransfer", (filename:string, hostname:string, transferID:string) =>{
         // Notification

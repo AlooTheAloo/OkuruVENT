@@ -28,6 +28,24 @@ export let currentPage = Page.None;
 // Global non-garbage collected variables
 let mainWindow:BrowserWindow|undefined = undefined;
 
+let clientRecords:{friendID:string, socketID:string}[] = [];
+/**
+ * 
+ * @param nonFriendsOnly If true, gives only non friends, if false gives everyone
+ * @returns The sockets you want
+ */
+export function getSockets():{Socket:Socket, friendID:string}[]{
+  let arr:{Socket:Socket, friendID:string}[] = [];
+  for (const [_, socket] of server.of("/").sockets) {
+    console.log("pushing to arr");
+    arr.push({ Socket:socket, friendID: clientRecords.filter(x => x.socketID == socket.id)[0].friendID });
+  }
+  return arr;
+}
+
+
+
+
 server.disconnectSockets();
 server.on("connection", (socket:Socket) => { 
   if(mainWindow == undefined || mainWindow == null) { socket.disconnect(); return; } 
@@ -49,11 +67,19 @@ server.on("connection", (socket:Socket) => {
     socket.emit("confirm_connection");
   }
 
-
+  clientRecords.push({friendID:socket.handshake.query['friendID'], socketID:socket.id});
   createServerModule(socket, mainWindow);
+
+  socket.on("disconnect", (reason:string) => {
+    clientRecords = clientRecords.filter(x => x.socketID != socket.id);
+  })
+  
+
 })
 
-// Temporary test function to eject all peers from your network
+
+
+
 ipcMain.handle('Application:PeerDisconnect', () => {
   server.disconnectSockets();
 })

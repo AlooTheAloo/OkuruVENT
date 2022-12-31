@@ -17,6 +17,10 @@ export default { createModuleForClient }
  * @param {BrowserWindow} mainWindow The electron window to send notifications to 
 */
 export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
+
+
+
+
     // Create hanndler for this client
     ipcMain.handle("Application:FileTransfer:RequestFileTransfer:" + socket.id, (evt) =>{
         dialog.showOpenDialog(mainwindow, {}).then((res) => {

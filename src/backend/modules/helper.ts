@@ -1,10 +1,11 @@
 import { machineIdSync } from "node-machine-id";
 import { readFileSync, writeFileSync } from "original-fs";
-import { appDataPath } from "../server";
+import { appDataPath, getSockets } from "../server";
 import { sep } from "path";
 import { DiscoveryType, Friend } from "@shared/misc";
 import { discovType, peers } from "./netdiscovery";
 import { eventHandler } from "./fileReceive";
+import { Socket } from "socket.io";
 
 /**
  * Fetches the hostname of the current machine, easier than reading file every time
@@ -30,10 +31,11 @@ export function getHostID():string{
  * @param hostname current hostname of the peer
  * @returns true if user is a friend, false if not
  */
-export function isFriend(friendID:string, hostname:string):boolean{ 
+export function isFriend(friendID:string, hostname?:string):boolean{ 
     let friends:Friend[] = JSON.parse(readFileSync(`${appDataPath}User${ sep }friends.txt`).toString()); // Read file
     for(let i = 0; i < friends.length; i++){ // Go through the array
         if(friends[i].friendID == friendID){ // We are friends with hem!
+            if(hostname == null) return true;
             if(friends[i].lastHostname != hostname){ // name has changed since! 
                 friends[i].lastHostname = hostname;
                 writeFileSync(`${appDataPath}User${ sep }friends.txt`, JSON.stringify(friends));
@@ -110,9 +112,7 @@ export function removeFriend(friendID:string):void{
     for(let i = 0; i < peers.length; i++){ // Filter
         if(peers[i].friendID == friendID){
 
-            if(discovType == DiscoveryType.Friends){
-                eventHandler.emit(`Application:DisconnectSocket:${peers[i].ID}`)
-            }
+            disconnectNonFriends();
 
             peers[i].isFriend = false;
             break;
@@ -121,28 +121,34 @@ export function removeFriend(friendID:string):void{
 }
 
 export function disconnectNonFriends(){
+    const currentSockets:{Socket:Socket, friendID:string}[] = getSockets();
     let friends:Friend[] = JSON.parse(readFileSync(`${appDataPath}User${ sep }friends.txt`).toString()); // Read
     let friendsIDs:string[] = [];
     for(let i = 0; i < friends.length; i++){
         friendsIDs.push(friends[i].friendID);
     }
-    for(let i = 0; i < peers.length; i++){ // Filter
-        if(!friendsIDs.includes(peers[i].friendID)){
-            eventHandler.emit(`Application:DisconnectSocket:${peers[i].ID}`)
+    for(let i = 0; i < currentSockets.length; i++){ // Filter
+        if(!friendsIDs.includes(currentSockets[i].friendID)){
+            eventHandler.emit(`Application:DisconnectSocket:${currentSockets[i].Socket.id}`)
         }
     }
 }
 
 
 export function disconnectEveryone(){
-    for(let i = 0; i < peers.length; i++){ // Filter
-            eventHandler.emit(`Application:DisconnectSocket:${peers[i].ID}`)
+    const currentSockets:{Socket:Socket, friendID:string}[] = getSockets();
+
+    for(let i = 0; i < currentSockets.length; i++){ // Filter
+        console.log("Disconnecting" + `Application:DisconnectSocket:${currentSockets[i].Socket.id}`);
+        eventHandler.emit(`Application:DisconnectSocket:${currentSockets[i].Socket.id}`)
     }
 }
 
 export function disconnectBlocked(){
-    for(let i = 0; i < peers.length; i++){ // Iterative algo
-        if(isBlocked(peers[i].friendID)){
+    const currentSockets:{Socket:Socket, friendID:string}[] = getSockets();
+
+    for(let i = 0; i < currentSockets.length; i++){ // Iterative algo
+        if(isBlocked(currentSockets[i].friendID)){
             eventHandler.emit(`Application:DisconnectSocket:${peers[i].ID}`)
         }
     }
