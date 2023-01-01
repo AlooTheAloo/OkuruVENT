@@ -22,10 +22,10 @@
             <p :style="{opacity: props.activeTab == Tab.New ? '1' : '0'}">
                 By
             </p>
-
                 <div class="discovery-selector"
                 :style="{
-                    marginLeft:props.activeTab == Tab.New ? '29px' : '44px'
+                pointerEvents:props.activeTab == Tab.New ? 'all' : 'none',
+                marginLeft:props.activeTab == Tab.New ? '29px' : '44px'
                 }"
                 :class="{ clickable:props.activeTab == Tab.New  }"
                 
