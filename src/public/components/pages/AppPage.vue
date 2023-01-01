@@ -5,6 +5,16 @@
     :active-tab="activeTab"/>
     <!-- Current device name-->
 
+
+    <TopBar 
+    @tabChange="changeTab"
+    :active-tab="activeTab"
+    />
+
+
+    <!--
+      Main page
+    -->
     <div style="margin-left: 100px; overflow-x: hidden;">
       <New   v-if="activeTab == Tab.New"/>
       <Devices v-else-if="activeTab == Tab.Devices"/>
@@ -27,6 +37,7 @@ import { Tab } from '@shared/misc';
 
 
 // Pages
+import TopBar from "../AppPage/TopElement.vue"
 import Settings from "../AppPage/Settings.vue";
 import Transfers from "../AppPage/Transfers.vue";
 import History from "../AppPage/History.vue";

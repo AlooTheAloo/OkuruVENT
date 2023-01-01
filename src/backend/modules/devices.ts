@@ -160,7 +160,6 @@ export function disconnectEveryone(){
     const currentSockets:{Socket:Socket, friendID:string}[] = getSockets();
 
     for(let i = 0; i < currentSockets.length; i++){ // Filter
-        console.log("Disconnecting" + `Application:DisconnectSocket:${currentSockets[i].Socket.id}`);
         eventHandler.emit(`Application:DisconnectSocket:${currentSockets[i].Socket.id}`)
     }
 }

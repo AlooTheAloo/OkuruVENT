@@ -36,7 +36,11 @@ p {
 
 
 .animate{
-  transition: all 0.22s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.animate-slow{
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .map {
@@ -88,8 +92,8 @@ img{
 }
 
 .discoverable-header-container{
+  pointer-events:none;
   padding: 20px;
-  width: 50vw;
   height: 10vw;
   margin: 0;
   position: absolute;
@@ -101,7 +105,8 @@ img{
   width: 10vw;
   height: 4vh;
   display:inline-block;
-  margin-left: 10px;
+  margin-left: 29px;
+  margin-top: -25px;
   position: absolute;
   border-radius: 10px;
   color: black;
@@ -113,7 +118,7 @@ img{
   position: absolute;
   z-index: 1;
   margin-top: 160px;
-  margin-left: -455px;
+  margin-left: -5px;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
@@ -223,6 +228,10 @@ img{
   background-color: white;
 }
 
+.peer-button:hover{
+  background-color: rgb(200, 200, 200);
+}
+
 .peer-button-devices{
   border-radius: 5px;
   width: 50px;
@@ -230,10 +239,23 @@ img{
   background-color: white;
 }
 
+.peer-button-devices:hover{
+  background-color: rgb(200, 200, 200);
+}
+
+
+
 .center-inner{
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.center-x{
+  display: flex;
+  justify-content: center;
+  width: calc(100% - 100px);
+  margin-left: 100px;
 }
 
 .all-clients-container{
@@ -311,6 +333,8 @@ img{
 }
 
 .friends-list{
+  position: absolute;
+  z-index: 0;
   box-shadow: 5px 5px 50px rgba(0, 0, 0, 0.4) ;
   border-radius: 20px;
   background-color: #2A2E32;
@@ -327,6 +351,7 @@ img{
   line-height:40px;
   display: flex;
   gap: 15px;
+  justify-content: left;
 }
 
 .hrStyle{
@@ -344,11 +369,19 @@ img{
   display: flex;
   flex-direction: row;
   justify-content:center;
-  gap: 110px;
 }
 
 .devices-container-column{
-  width: 250px;
+  width: 46%;
   display: flex;
   flex-direction: column;
+}
+
+.TopbarBg{
+  background-color: #6A9CFF;
+  width: 200px;
+  height: 180px;
+  position: absolute;
+  border-radius: 20px;
+  box-shadow: 5px 5px 50px rgba(0, 0, 0, 0.4) ;
 }

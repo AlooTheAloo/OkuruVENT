@@ -27,37 +27,7 @@
       </div>
 
     </div>
-    <div class="discoverable-header-container">
-      <p>You are discoverable as</p>
-      <p class="bold large">
-        <img src="../../images/computer.svg" style="width: 25px;">
-        {{ deviceName }}
-      </p>
-      <p>
-        By 
-        <div class="clickable discovery-selector" v-on:click="openDropdown()">
-          <p style="margin-left: 10px; color: black;">
-            {{ currentDiscoveryType }}
-          </p>
-          <img src="../../images/expand.svg" style="display: inline; position: absolute; margin-top: -27px; margin-left: 95px; width: 30px; height: 30px;">
-        </div>
-      </p>
-      
-    </div>
 
-    <div class="discovery-selector-dropdown" :style="{
-        display: dropdownOpened ? 'block' : 'none' 
-      }">
-      <div class="discovery-selector-child-element clickable animate list-top-element" v-on:click="setDiscoveryType(DiscoveryType.All)">
-        <p class="discovery-selector-dropdown-text">Everyone</p>
-      </div>
-      <div class="discovery-selector-child-element clickable animate list-middle-element" v-on:click="setDiscoveryType(DiscoveryType.Friends)">
-        <p class="discovery-selector-dropdown-text">Friends</p>
-      </div>
-      <div class="discovery-selector-child-element clickable animate list-bottom-element" v-on:click="setDiscoveryType(DiscoveryType.None)">
-        <p class="discovery-selector-dropdown-text">No one</p>
-      </div>
-    </div>
 
     <div class="connected-devices"> 
       <div class="nearby-container">
@@ -102,10 +72,10 @@
         
         </div>
         <div class="peer-buttons-container">
-          <div class="peer-button clickable center-inner" v-on:click="RequestFileTransfer(peer.ID)">
+          <div class="peer-button clickable center-inner animate" v-on:click="RequestFileTransfer(peer.ID)">
             <p style="color: black;">+</p>
           </div>
-          <div class="peer-button clickable center-inner" v-on:click="OpenContextWindow(peer)">
+          <div class="peer-button clickable center-inner animate" v-on:click="OpenContextWindow(peer)">
             <p style="color: black; margin-top: -10px;">
               ...
             </p>
@@ -125,20 +95,17 @@
 // Imports
 import { ref } from 'vue';
 import { rpcHandle, rpcInvoke } from '../../js/rpc';
-import { Filter, Peer, DiscoveryType } from '@shared/misc';
+import { Filter, Peer } from '@shared/misc';
 
 // Refs
 const connectedPeers = ref<Peer[]>([]);
-const deviceName = ref<String>();
 const selectedFilter = ref<Filter>(Filter.All);
 const hoveringAll = ref<boolean>(false);
 const hoveringFriends = ref<boolean>(false);
 const contextClickPos = ref<{x:string, y:string}>({x:'0px', y:'0px'});
 const lastMousePos = ref<{x:string, y:string}>({x:'0px', y:'0px'});
 const windowOpened = ref<boolean>(false);
-const dropdownOpened = ref<boolean>(false);
 const contextWindowPeer = ref<Peer>();
-const currentDiscoveryType = ref<string>("Everyone");
 // Mouse moving
 window.addEventListener('mousemove', (evt:MouseEvent) =>{
   const x = clamp(evt.clientX - 230, 12, window.innerWidth) + "px";
@@ -171,7 +138,6 @@ function removeFriend(){
 
 // This is painful to do but necessary
 let eatNextClickContextMenu = false;
-let eatNextClickDropdown = false;
 
 /**
  * Open context window for peer (the ... menu)
@@ -184,14 +150,7 @@ function OpenContextWindow(peer:Peer){
   windowOpened.value = true;
 }
 
-/**
- * Open dropdown menu
- */
-function openDropdown(){
-  if(dropdownOpened.value) return;
-  dropdownOpened.value = true; 
-  eatNextClickDropdown = true;
-}
+
 
 /**
  * Click off of moreOptions
@@ -206,45 +165,10 @@ window.addEventListener("click", (evt) => {
       windowOpened.value = false;
     }
   }
-
-  // depression
-  if(eatNextClickDropdown){
-    eatNextClickDropdown = false;
-  }
-  else{
-    dropdownOpened.value = false;
-  }
-
 })
 
 
-/**
- * Changes who can discover you
- * @param { DiscoveryType } newType the discovery type to switch to
- */
-function setDiscoveryType(newType:DiscoveryType){
-  rpcInvoke("Application:Set:DiscoveryType", newType);
-  createDiscoveryString(newType);
-}
 
-/**
- * Converts DiscoveryType to a string and sets it on currentDiscoveryType
- * @param { DiscoveryType } newType the discovery type to convert to a string
- */
-function createDiscoveryString(newType:DiscoveryType){
-  //Show discovery type to user
-  switch(newType){
-    case DiscoveryType.All:
-      currentDiscoveryType.value = "Everyone";
-      break;
-    case DiscoveryType.Friends:
-      currentDiscoveryType.value = "Friends";
-      break;
-    case DiscoveryType.None:
-      currentDiscoveryType.value = "No one";
-      break;
-  }  
-}
 
 
 
@@ -263,22 +187,9 @@ function sanitize(peers:Peer[]):Peer[]{
   return peers.filter(x => selectedFilter.value == Filter.Friends ? x.isFriend : 1 == 1);
 }
 
-/**
- *  Page loaded, we want to get devicename information
- *  from main process
- */
-rpcInvoke("Application:Require:HostName");
-rpcHandle("Application:HostName", (res:string) => {
-  deviceName.value = res;
-})
 
-/**
-*  Page loaded, we want to get current discovery type
-*/
-rpcInvoke("Application:Require:DiscoveryType");
-rpcHandle("Application:DiscoveryType", (res:DiscoveryType) => {
-  createDiscoveryString(res);
-})
+
+
 
 /**
  *  New page has been opened, let's ask the server for connected peers

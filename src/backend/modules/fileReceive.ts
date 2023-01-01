@@ -21,7 +21,6 @@ export const eventHandler = new EventEmitter();
 export function createModuleForServer(socket:Socket, mainwindow:BrowserWindow):void{
     
     eventHandler.on(`Application:DisconnectSocket:${socket.id}`, function handler (){
-        console.log("Disconnecting socket...")
         socket.disconnect();
         socket.offAny();
         eventHandler.removeListener(`Application:DisconnectSocket:${socket.id}`, handler);

@@ -1,5 +1,5 @@
 <template>
-    <div class="body" style="align-items:center">
+    <div class="body" style="align-items:center;">
       
       <div class="friends-list">
         <div class="nearby-container">
@@ -30,10 +30,10 @@
       <div class="devices-container-row" >
         <div class="devices-container-column" v-for="row in COLUMN_COUNT">
           <div class="friend-element" v-for="device in getRow(row - 1)" >    
-            <p>
+            <p style="overflow-x: hidden; overflow-y: hidden; height: 30px;">
               {{ device.lastHostname }}
             </p>
-            <div class="peer-button-devices  clickable center-inner" style="width:40px; height: 40px;">
+            <div class="peer-button-devices clickable center-inner animate" style="width:40px; height: 40px;">
               <img src="../../images/person_remove.svg" style="width: 20px;">
             </div>
           </div>        
@@ -66,7 +66,7 @@
   const blockedList = ref<SavedPeer[]>([]);
 
   // Constants
-  const  COLUMN_COUNT = 3;
+  const  COLUMN_COUNT = 2;
   
 
   rpcInvoke("Application:Require:FriendsList");

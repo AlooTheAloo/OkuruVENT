@@ -1,6 +1,6 @@
 <template>
-    <StartPage v-if="currentPage==Page.StartPage"/>
-    <AppPage v-else-if="currentPage==Page.AppPage"/>
+    <StartPage style="overflow-x:hidden;" v-if="currentPage==Page.StartPage"/>
+    <AppPage style="overflow-x:hidden;" v-else-if="currentPage==Page.AppPage"/>
     <!-- Redirecting... -->
     <div v-else-if="currentPage==Page.None"></div>
     <div v-else><p>Uhhh you're not supposed to be here</p></div>

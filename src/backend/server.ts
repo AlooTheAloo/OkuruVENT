@@ -38,7 +38,6 @@ let clientRecords:{friendID:string, socketID:string}[] = [];
 export function getSockets():{Socket:Socket, friendID:string}[]{
   let arr:{Socket:Socket, friendID:string}[] = [];
   for (const [_, socket] of server.of("/").sockets) {
-    console.log("pushing to arr");
     arr.push({ Socket:socket, friendID: clientRecords.filter(x => x.socketID == socket.id)[0].friendID });
   }
   return arr;
