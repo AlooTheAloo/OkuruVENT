@@ -29,16 +29,24 @@ export enum DeviceType{
 }
 
 export type Peer = {
-  hostname:string;
-  address:string; 
-  friendID:string;
-  ID:string;
-  isFriend:boolean;
-  deviceType:DeviceType;
+  hostname:string,
+  address:string,
+  friendID:string,
+  ID:string,
+  isFriend:boolean,
+  deviceType:DeviceType,
+  publicKey:string;
+
 }
 
-export type Friend = {
+export type SavedPeer = {
   lastHostname:string,
-  friendID:string
+  friendID:string,
+  deviceType:DeviceType,
+  publicKey:string;
 }
 
+export type Keys = {
+  publicKey:string,
+  privateKey:string,
+}

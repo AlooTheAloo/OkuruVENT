@@ -16,7 +16,8 @@ import { rpcInvoke } from "../rpc";
 import { createApp } from "./modules/generateApp";
 import { DiscoveryType, Page } from "@shared/misc";
 import { existsSync } from "original-fs";
-import { addFriend, blockPeer, canBeDiscoveredBy, getBlocked, getFriends, getHostName, removeFriend } from "./modules/helper";
+import { addFriend, blockPeer, canBeDiscoveredBy, getBlocked, getFriendPK, getFriends, getHostName, getPublicKey, isFriend, removeFriend } from "./modules/devices";
+import { createVerify, randomBytes } from "crypto";
 
 // Server Vars
 const server = new Server(port, {pingInterval:2000, pingTimeout:6000, transports: ['websocket'], maxHttpBufferSize: 1e25});
@@ -48,6 +49,7 @@ export function getSockets():{Socket:Socket, friendID:string}[]{
 
 server.disconnectSockets();
 server.on("connection", (socket:Socket) => { 
+
   if(mainWindow == undefined || mainWindow == null) { socket.disconnect(); return; } 
 
 
@@ -58,14 +60,38 @@ server.on("connection", (socket:Socket) => {
     socket.disconnect(); return;
   }
   
+  let dataToSign = "";
+  let friendID = socket.handshake.query['friendID'];
 
-  if(!canBeDiscoveredBy(socket.handshake.query['friendID'], socket.handshake.query['hostName'])){
-      socket.disconnect(); // can't be discovered
-      return;
+  if(!canBeDiscoveredBy(socket.handshake.query['friendID'])){
+    socket.disconnect(); // can't be discovered
+    return;
   }
   else{
-    socket.emit("confirm_connection");
+    // this device is saying that they are a friend, we need to verify this claim
+    if(isFriend(socket.handshake.query['friendID'], socket.handshake.query['hostName'])){
+      // We ask them to sign
+      dataToSign = randomBytes(100).toString();
+      socket.emit("Security:SignRequest", dataToSign);      
+    }
+    else{
+      socket.emit("Security:confirm_connection", getPublicKey());
+    }
   }
+
+  socket.on("Security:ACK:SignRequest", (signature:string) => {
+    const verify = createVerify('SHA256');
+    verify.write(dataToSign);
+    verify.end();
+    if(verify.verify(getFriendPK(friendID), signature, 'hex')){
+      socket.emit("Security:confirm_connection", getPublicKey());
+    }
+    else{
+      // IMPOSTOR DETECTED!!!
+      console.log(`Spoofing has been discovered on the network by peer ${ hostname }. Please take caution.`)
+      socket.disconnect();
+    }
+  })
 
   clientRecords.push({friendID:socket.handshake.query['friendID'], socketID:socket.id});
   createServerModule(socket, mainWindow);
@@ -97,7 +123,6 @@ ipcMain.handle("Application:StartPage:SendHostName", (evt:Event, chosenHostname:
 })
 
 ipcMain.handle("Application:Require:ApplicationHasBeenSetup", () => {
-  console.log("setup called")
   const setup = existsSync(`${appDataPath}User${sep}`);
   if(setup) { rpcInvoke("Application:ChangePage", Page.AppPage); currentPage = Page.AppPage }
   else { rpcInvoke("Application:ChangePage", Page.StartPage); currentPage = Page.StartPage }
@@ -107,8 +132,8 @@ ipcMain.handle("Application:Require:HostName", () =>{
   rpcInvoke("Application:HostName", getHostName())
 })
 
-ipcMain.handle("Application:addAsFriend", (evt:Event, hostname:string, friendID:string) =>{
-  addFriend(friendID, hostname);
+ipcMain.handle("Application:addAsFriend", (evt:Event, peerString:string) =>{
+  addFriend(JSON.parse(peerString));
   SendPeersToRenderer();
 })
 
@@ -117,8 +142,8 @@ ipcMain.handle("Application:removeFriend", (evt:Event, friendID:string) =>{
   SendPeersToRenderer();
 })
 
-ipcMain.handle("Application:BlockPeer", (evt:Event, hostname:string, friendID:string) => {
-  blockPeer(friendID, hostname);
+ipcMain.handle("Application:BlockPeer", (evt:Event, peerString:string) => {
+  blockPeer(JSON.parse(peerString));
 })
 
 

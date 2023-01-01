@@ -150,7 +150,8 @@ window.addEventListener('mousemove', (evt:MouseEvent) =>{
  * Add contextWindowPeer as friend
  */
 function addAsFriend(){
-  rpcInvoke("Application:addAsFriend", contextWindowPeer.value?.hostname, contextWindowPeer.value?.friendID);
+  console.log("..");
+  rpcInvoke("Application:addAsFriend", JSON.stringify(contextWindowPeer.value));
 }
 
 /**
@@ -158,7 +159,7 @@ function addAsFriend(){
  */
 function BlockPeer(){
   console.log("Blocking peer...");
-  rpcInvoke("Application:BlockPeer", contextWindowPeer.value?.hostname, contextWindowPeer.value?.friendID)
+  rpcInvoke("Application:BlockPeer", JSON.stringify(contextWindowPeer.value));
 }
 /**
  * Remove contextWindowPeer as friend

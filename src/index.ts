@@ -21,6 +21,7 @@ const createWindow = () => {
     width: 1293,
     height: 727,
     webPreferences: {
+      sandbox:false,
       preload: MAIN_PAGE_PRELOAD_WEBPACK_ENTRY,
       nodeIntegration: false,
       contextIsolation: true,
@@ -41,7 +42,7 @@ const createWindow = () => {
   });
   
  
-
+  mainWindow.webContents.openDevTools();
   // @ts-ignore
   global.mainWindow = mainWindow;
 
@@ -49,7 +50,6 @@ const createWindow = () => {
   mainWindow.loadURL(MAIN_PAGE_WEBPACK_ENTRY);
   //mainWindow.loadURL(PAIR_PAGE_WEBPACK_ENTRY);
 
-  mainWindow.webContents.openDevTools();
 
 
   // Open the DevTools
@@ -100,6 +100,8 @@ app.whenReady().then(async () => {
       },
     },
   ]);
+  
+
 
   tray.setToolTip("Okuru - Running in the background");
   // Nouvel appel pour Linux

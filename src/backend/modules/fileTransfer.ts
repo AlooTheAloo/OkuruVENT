@@ -2,7 +2,7 @@ import { ipcMain, dialog, Notification, BrowserWindow } from 'electron';
 import fs from 'fs';
 import { PathLike } from 'original-fs';
 import { Socket } from 'socket.io';
-import { getHostName } from './helper';
+import { getHostName } from './devices';
 
 let currentNotification:Notification;
 

@@ -2,7 +2,7 @@ import { app, BrowserWindow, dialog, Notification, shell } from "electron";
 import { existsSync, appendFileSync, rmSync, writeFileSync } from "original-fs";
 import { sep } from "path";
 import { Socket } from "socket.io";
-import { getHostName } from "./helper";
+import { getHostName } from "./devices";
 import { EventEmitter } from "events";
 let transfers:{id:string, filepath:string}[] = [];
 let shownNotification:Notification;

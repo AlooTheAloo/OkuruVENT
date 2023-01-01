@@ -6,11 +6,13 @@ const { io } = require("socket.io-client");
 import { createModuleForClient as fileTransfer } from "./fileTransfer"
 import os from "os";
 import { rpcInvoke } from "../../rpc";
-import { BrowserWindow } from "electron";
+import { app, BrowserWindow } from "electron";
 import { port } from "./constants";
 import { DeviceType, DiscoveryType, Page, Peer } from '@shared/misc';
-import { disconnectEveryone, disconnectNonFriends, getHostID, getHostName, isFriend } from './helper';
+import { disconnectEveryone, disconnectNonFriends, getHostID, getHostName, getPrivateKey, isFriend } from './devices';
 import { currentPage } from '../server';
+import { createPrivateKey, createSign } from 'crypto';
+import { Socket } from 'socket.io';
 
 
 // Connected peers
@@ -41,7 +43,13 @@ export function netDiscov(win:BrowserWindow):void{
     canStart = true;
   }
   if(broadcastServer != null){
-    broadcastServer.close();
+    try{
+      broadcastServer.close();      
+    }
+    catch(e){
+      app.relaunch();
+      app.quit();
+    }
   }
 
   let message = Buffer.from(`Okuru | Searching for devices | ${getHostName()} | ${getHostID()}`);
@@ -163,10 +171,11 @@ function startClientNetDiscovery():void{
     .filter(({ family, internal }) => family === "IPv4" && !internal)
     .map(({ address }) => address);
 
-// Decompose packet
-const hostname = msg.toString().split("|")[2].trim();
+  // Decompose packet
+  const hostname = msg.toString().split("|")[2].trim();
 
-const friendID = msg.toString().split("|")[3].trim();
+  const friendID = msg.toString().split("|")[3].trim();
+
     if(addr.indexOf(info.address) != -1){
       // TODO : uncomment this for non-testing dist code
       // return; // Received command from self
@@ -179,10 +188,10 @@ const friendID = msg.toString().split("|")[3].trim();
     
     
     // Creation of the client
-    const client = io(`http://${info.address}:${port}`, {
+    const client:Socket = io(`http://${info.address}:${port}`, {
       transports: ['websocket'],
       reconnection: false,
-      query: `friendID=${getHostID()}&hostName=${getHostName()}` // HTTP :death:
+      query: `friendID=${getHostID()}&hostName=${getHostName()}}` // HTTP :death:
     });
         
     // Connection error :(
@@ -211,14 +220,35 @@ const friendID = msg.toString().split("|")[3].trim();
 
     });
 
-    client.on("confirm_connection", () => {
-      let connectionObject:Peer = { address:(info.address), ID:(client.id), hostname:(hostname), isFriend: isFriend(friendID, hostname), deviceType: DeviceType.PC, friendID:friendID};
+    client.on("Security:confirm_connection", (publicKey:string) => {
+      let connectionObject:Peer = { 
+        address:(info.address), 
+        ID:(client.id), 
+        hostname:(hostname), 
+        isFriend: isFriend(friendID, hostname), 
+        deviceType: DeviceType.PC, 
+        friendID:friendID, 
+        publicKey:publicKey
+      };
       peers.push(connectionObject)
       rpcInvoke('Application:PeersUpdate', peers)
       console.log(`Peer ${hostname} has joined the network  ! `);
       fileTransfer(client, mainwindow);
     })
 
+    client.on("Security:SignRequest", (data_to_sign:string) => { 
+      const sign = createSign('SHA256');
+      sign.write(data_to_sign);
+      sign.end();
+
+      const signature = sign.sign(
+        createPrivateKey({  
+          key: Buffer.from(getPrivateKey()),
+          format: "pem",
+          type: "pkcs8"
+      }), 'hex');
+      client.emit("Security:ACK:SignRequest", signature);
+    })
     
 
     // On disconnect, remove from peers

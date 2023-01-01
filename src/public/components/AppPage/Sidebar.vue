@@ -86,11 +86,11 @@ const emit = defineEmits<{
 
 ///Constants
 const tabIndicatorPositions: Record<Tab, string> = {
-  [Tab.New]: "189px",
-  [Tab.Devices]: "256px",
-  [Tab.Transfers]: "323px",
-  [Tab.History]: "389px",
-  [Tab.Settings]: "457px",
+  [Tab.New]: "191px",
+  [Tab.Devices]: "257px",
+  [Tab.Transfers]: "324px",
+  [Tab.History]: "391px",
+  [Tab.Settings]: "459px",
 };
 
 const tabIndicatorSizes: Record<Tab, string> = {

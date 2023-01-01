@@ -90,6 +90,7 @@
     "@electron-forge/maker-squirrel": "^6.0.0-beta.64",
     "@electron-forge/maker-zip": "^6.0.0-beta.64",
     "@electron-forge/plugin-webpack": "6.0.0-beta.64",
+    "@vue/devtools": "^6.4.5",
     "copy-webpack-plugin": "^11.0.0",
     "electron": "^20.0.3",
     "electron-devtools-installer": "^3.2.0",
