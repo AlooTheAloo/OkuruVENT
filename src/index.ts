@@ -1,7 +1,7 @@
 import "source-map-support/register";
 
 import appicon from "./public/images/unWYSItp.png" // TODO: change this out for official logo
-import { app, BrowserWindow, Menu, Tray } from "electron";
+import { app, BrowserWindow, Menu, MenuItem, Tray } from "electron";
 import install, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 // eslint-disable-next-line global-require
@@ -9,8 +9,10 @@ if ((await import("electron-squirrel-startup")).default) {
   app.quit();
 }
 
-
 import { startNetDiscovery } from "./backend/server";
+import { discovType } from "./backend/modules/netdiscovery";
+import { DiscoveryType } from "@shared/misc";
+import { rpcInvoke } from "./rpc";
 
 const createWindow = () => {
   // Create the browser window.
@@ -71,6 +73,8 @@ app.on("activate", () => {
   }
 });
 
+export let contextMenu:Menu;
+
 process.on("SIGTERM", () => {
   app.exit(0);
 });
@@ -82,16 +86,53 @@ app.whenReady().then(async () => {
   createWindow();
 
   const tray = new Tray(appicon);
-  const contextMenu = Menu.buildFromTemplate([
+  contextMenu = Menu.buildFromTemplate([
     {
-      label: "Open Window",
+      label: "Open",
       type: "normal",
 
       click: () => {
         mainWindow.show();
       },
     },
+    
     { type: "separator" },
+
+    {
+      label: "Everyone",
+      type: "radio",
+      id: "Everyone",
+      checked: discovType == DiscoveryType.All,
+      click: (m) => {
+        rpcInvoke("Application:DiscoveryType", DiscoveryType.All);
+        m.checked = true;
+        mainWindow.show();
+      },
+    },
+    {
+      label: "Friends",
+      type: "radio",
+      checked: discovType == DiscoveryType.Friends,
+      id: "Friends",
+      click: (m) => {
+        rpcInvoke("Application:DiscoveryType", DiscoveryType.Friends);
+        m.checked = true;
+        mainWindow.show();
+      },
+    },
+    {
+      label: "No one",
+      type: "radio",
+      id: "Noone",
+      checked: discovType == DiscoveryType.None,
+      click: (m) => {
+        rpcInvoke("Application:DiscoveryType", DiscoveryType.None);
+        m.checked = true;
+        mainWindow.show();
+      },
+    },
+    { type: "separator" },
+
     {
       label: "Exit",
       type: "normal",
@@ -100,14 +141,32 @@ app.whenReady().then(async () => {
       },
     },
   ]);
+
   
 
-
   tray.setToolTip("Okuru - Running in the background");
-  // Nouvel appel pour Linux
   tray.setContextMenu(contextMenu);
-  tray.addListener("click", function () {
+  tray.addListener("click", () => {
     mainWindow.show();
   });
 
 });
+
+export function setSelectedRadio(discovType:DiscoveryType):void{
+  let targetEl:MenuItem|null;
+  switch(discovType){
+    case DiscoveryType.All:
+      targetEl = contextMenu.getMenuItemById("Everyone");
+      break;
+    case DiscoveryType.Friends:
+      targetEl = contextMenu.getMenuItemById("Friends");
+      break;
+    case DiscoveryType.None:
+      targetEl = contextMenu.getMenuItemById("Noone");
+      break;
+  }
+  if(targetEl != null){ 
+    targetEl.checked = true;
+  }
+
+}

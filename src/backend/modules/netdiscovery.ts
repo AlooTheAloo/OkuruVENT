@@ -13,6 +13,7 @@ import { disconnectEveryone, disconnectNonFriends, getHostID, getHostName, getPr
 import { currentPage } from '../server';
 import { createPrivateKey, createSign } from 'crypto';
 import { Socket } from 'socket.io';
+import { setSelectedRadio } from '../../index';
 
 
 // Connected peers
@@ -23,6 +24,8 @@ export function setDiscovType(newDiscovType:DiscoveryType):void{
   if(newDiscovType == DiscoveryType.Friends) disconnectNonFriends();
   else if (newDiscovType == DiscoveryType.None) disconnectEveryone();
   discovType = newDiscovType;
+  setSelectedRadio(newDiscovType)
+
 }
 
 
