@@ -16,7 +16,7 @@ import { rpcInvoke } from "../rpc";
 import { createApp } from "./modules/generateApp";
 import { DiscoveryType, Page } from "@shared/misc";
 import { existsSync } from "original-fs";
-import { addFriend, blockPeer, canBeDiscoveredBy, getBlocked, getFriendPK, getFriends, getHostName, getPublicKey, isFriend, removeFriend } from "./modules/devices";
+import { addFriend, blockPeer, canBeDiscoveredBy, getBlocked, getFriendPK, getFriends, getHostName, getPublicKey, isFriend, removeFriend, unBlock } from "./modules/devices";
 import { createVerify, randomBytes } from "crypto";
 
 // Server Vars
@@ -145,7 +145,6 @@ ipcMain.handle("Application:BlockPeer", (evt:Event, peerString:string) => {
   blockPeer(JSON.parse(peerString));
 })
 
-
 ipcMain.handle("Application:Set:DiscoveryType", (evt:Event, newType:DiscoveryType) => {
   setDiscovType(newType);
 })
@@ -159,6 +158,17 @@ ipcMain.handle("Application:Require:DiscoveryType", (evt:Event) => {
 })
 
 ipcMain.handle("Application:Require:BlockedList", (evt:Event) => {
+  rpcInvoke("Application:BlockedList", getBlocked());
+})
+
+ipcMain.handle("Application:unfriend", (evt:Event, friendID:string) => {
+  removeFriend(friendID);
+  rpcInvoke("Application:FriendsList", getFriends());
+})
+
+ipcMain.handle("Application:unblock", (evt:Event, friendID:string) => {
+  console.log("unblocking" + friendID);
+  unBlock(friendID);
   rpcInvoke("Application:BlockedList", getBlocked());
 })
 

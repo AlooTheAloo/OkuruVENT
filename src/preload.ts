@@ -5,7 +5,6 @@ const { contextBridge, ipcRenderer } = require("electron");
 declare const PROD: boolean;
 
 function rpcLog(...stuff) {
-  //TODO: handle promise
   void ipcRenderer.send("RPC:Log", ...stuff);
 }
 

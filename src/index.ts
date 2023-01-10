@@ -10,7 +10,7 @@ if ((await import("electron-squirrel-startup")).default) {
 }
 
 import { startNetDiscovery } from "./backend/server";
-import { discovType } from "./backend/modules/netdiscovery";
+import { discovType, setDiscovType } from "./backend/modules/netdiscovery";
 import { DiscoveryType } from "@shared/misc";
 import { rpcInvoke } from "./rpc";
 
@@ -105,7 +105,7 @@ app.whenReady().then(async () => {
       checked: discovType == DiscoveryType.All,
       click: (m) => {
         rpcInvoke("Application:DiscoveryType", DiscoveryType.All);
-        m.checked = true;
+        setDiscovType(DiscoveryType.All);
         mainWindow.show();
       },
     },
@@ -115,8 +115,8 @@ app.whenReady().then(async () => {
       checked: discovType == DiscoveryType.Friends,
       id: "Friends",
       click: (m) => {
+        setDiscovType(DiscoveryType.Friends);
         rpcInvoke("Application:DiscoveryType", DiscoveryType.Friends);
-        m.checked = true;
         mainWindow.show();
       },
     },
@@ -126,8 +126,8 @@ app.whenReady().then(async () => {
       id: "Noone",
       checked: discovType == DiscoveryType.None,
       click: (m) => {
+        setDiscovType(DiscoveryType.None);
         rpcInvoke("Application:DiscoveryType", DiscoveryType.None);
-        m.checked = true;
         mainWindow.show();
       },
     },
@@ -152,6 +152,10 @@ app.whenReady().then(async () => {
 
 });
 
+/**
+ * Selects one of the radio in the context menu of the tray icon 
+ * @param discovType The target radio to select
+ */
 export function setSelectedRadio(discovType:DiscoveryType):void{
   let targetEl:MenuItem|null;
   switch(discovType){

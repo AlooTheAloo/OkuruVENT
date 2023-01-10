@@ -4,7 +4,8 @@ import { sep } from "path";
 import { Socket } from "socket.io";
 import { getHostName } from "./devices";
 import { EventEmitter } from "events";
-let transfers:{id:string, filepath:string}[] = [];
+import { Transfer } from "@shared/misc";
+let transfers:Transfer[] = [];
 let shownNotification:Notification;
 
 export default { createModuleForServer }
@@ -47,10 +48,12 @@ export function createModuleForServer(socket:Socket, mainwindow:BrowserWindow):v
                 else{
                     if(res.filePath == null) return;
                     // Set in arr
-                    transfers.push({id:transferID, filepath:res.filePath});
+                    transfers.push({id:transferID, 
+                        filepath:res.filePath, 
+                        socketID:socket.id, 
+                        filename:res.filePath.split(sep)[res.filePath.split(sep).length - 1]});
                     // Reply
                     socket.emit("ACK:Transfer:FileRequestTransfer", transferID, true, getHostName());
-                    transfers.push({id: transferID, filepath: res.filePath });
                 }
             })
             
@@ -61,7 +64,7 @@ export function createModuleForServer(socket:Socket, mainwindow:BrowserWindow):v
     socket.on("Transfer:FileTransferComplete", (fileTransferID) => {
         console.log(`Transfer ${fileTransferID} is completed!`)
         const transfer = transfers.filter(x => x.id == fileTransferID)[0]; 
-        transfers = transfers.filter(x => x.id != fileTransferID);
+        transfers = transfers.filter(x => x.id != fileTransferID); // Remove transfer
         shownNotification = new Notification(
             {
                 title:"File transfer completed !!",

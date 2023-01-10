@@ -1,11 +1,19 @@
 <template>
     <div class="center-x animate-slow" style="position: absolute; z-index: 1;"
     :style="{
-      marginLeft:activeTab == Tab.New ? '100px' : '500px',
+      marginLeft:activeTab == Tab.New ? '100px' : '570px',
       marginTop:activeTab == Tab.New ? '0vh': '-9vh'
     }">
 
-        <div class="TopbarBg animate" :style="{opacity: props.activeTab == Tab.New ? '0' : '1'}" style="margin-left: 20px; cursor: pointer;"
+        <div class="TopbarBg animate-slow" :style="{
+            opacity: props.activeTab == Tab.New ? '0' : '1',
+            cursor: props.activeTab == Tab.New ? 'auto' : 'pointer',
+            height: props.activeTab == Tab.New ? '120px' : '50px',
+            marginTop: props.activeTab == Tab.New ? '45px' : '70px',
+            marginLeft: props.activeTab == Tab.New ? '0px' : '-170px',
+            width: props.activeTab == Tab.New ? '250px' : '350px'
+            
+        }"
         v-on:click=" changeTab(Tab.New) "
         
         >
@@ -14,7 +22,9 @@
 
         <div class="discoverable-header-container">
             <p class="animate-slow" :style="{opacity: props.activeTab == Tab.New ? '1' : '0'}">You are discoverable as</p>
-            <p class="bold large">
+            <p class="bold large animate-slow"
+            :style="{marginLeft: props.activeTab == Tab.New ? '0px' : '-180px',
+                    marginTop: props.activeTab == Tab.New ? '0px' : '-5px'}">
                 <img :style="{opacity: props.activeTab == Tab.New ? '1' : '0'}"
                 src="../../images/computer.svg" style="width: 25px;">
                 {{ deviceName }}
@@ -24,6 +34,7 @@
             </p>
                 <div class="discovery-selector"
                 :style="{
+                marginTop:props.activeTab == Tab.New ? '-25px' : '-60px',
                 pointerEvents:props.activeTab == Tab.New ? 'all' : 'none',
                 marginLeft:props.activeTab == Tab.New ? '29px' : '44px'
                 }"
@@ -86,7 +97,10 @@
     (e: "tabChange", newTab: Tab): void;
     }>();
     
-    ///Local event handlers
+    /**
+     * Changes the tab on the parent component
+     * @param newTab The tab to change to
+     */
     function changeTab(newTab: Tab) {
         emit("tabChange", newTab);
     }

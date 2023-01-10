@@ -1,3 +1,4 @@
+import { Transfer } from '@shared/misc';
 import { ipcMain, dialog, Notification, BrowserWindow } from 'electron';
 import fs from 'fs';
 import { PathLike } from 'original-fs';
@@ -6,8 +7,8 @@ import { getHostName } from './devices';
 
 let currentNotification:Notification;
 
-let currentAwaitingSenderTransfers:{filename:string, id:string, path:PathLike}[] = [];
-let currentSenderTransfers:{filename:string, id:string, path:PathLike}[] = [];
+let currentAwaitingSenderTransfers:Transfer[] = [];
+let currentSenderTransfers:Transfer[] = [];
 
 export default { createModuleForClient }
 
@@ -28,8 +29,7 @@ export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
             else{
                 let transferID = makeid(50);
                 var filename = res.filePaths[0].replace(/^.*[\\\/]/, '')
-                console.log("sending file to socket " + filename + " " + socket.id + " " + transferID);
-                currentAwaitingSenderTransfers.push ({ filename:filename, id:transferID, path:res.filePaths[0] })
+                currentAwaitingSenderTransfers.push ({ filename:filename, id:transferID, filepath:res.filePaths[0], socketID:socket.id });
                 socket.emit("Transfer:RequestFileTransfer", filename, getHostName(), transferID);
             } 
         })
@@ -70,7 +70,7 @@ export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
             SendPacket(fileTransferID, unixMSTimeStamp, packetID, positionBytes, size, socket);
         }
         else{
-            currentSenderTransfers = currentSenderTransfers.filter(x => x.id != fileTransferID)
+            currentSenderTransfers = currentSenderTransfers.filter(x => x.id != fileTransferID) // Remove transfer
             socket.emit("Transfer:FileTransferComplete", fileTransferID);
         }
     })
@@ -108,14 +108,14 @@ function SendPacket(fileTransferID:string, unixMSTimeStamp:number, packetID:numb
     // Create packet
     let Buf = Buffer.alloc(1e6 * targetMB);
     if(targetTransfer == undefined) return; // No transfer
-    fs.open(targetTransfer.path, 'r', (status, fd) => { // Open target file
+    fs.open(targetTransfer.filepath, 'r', (status, fd) => { // Open target file
         if (status) { // Error
             console.log(status.message);
             return;
         }
 
         if(targetTransfer == undefined) return; // TS is weird
-        let fileSize = getSize(targetTransfer.path); // Get the size of the file
+        let fileSize = getSize(targetTransfer.filepath); // Get the size of the file
         if ((positionBytes * 1e6) + (targetMB * 1e6) > fileSize){ // Last packet too large
             const dlSize = (fileSize) - (positionBytes * 1e6);
             Buf = Buffer.alloc(dlSize); // Create new buffer because current allocation is too large
@@ -125,7 +125,7 @@ function SendPacket(fileTransferID:string, unixMSTimeStamp:number, packetID:numb
             fs.readSync(fd, Buf, 0, targetMB * 1e6, positionBytes * 1e6); // Read the file
         }
         
-        fileSize = fs.statSync(targetTransfer.path).size ;
+        fileSize = fs.statSync(targetTransfer.filepath).size ;
         socket.emit("Transfer:FileTransferPacket", fileTransferID, Date.now(), targetMB, packetID, positionBytes, false, Buf, fileSize); // Send packet
     })
 }

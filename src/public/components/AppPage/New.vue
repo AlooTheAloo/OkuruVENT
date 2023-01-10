@@ -56,10 +56,10 @@
       </div>
       <hr style=" margin-left: 30px; margin-right: 30px;">
       <div class="all-clients-container" 
-      :style="{justifyContent: connectedPeers?.length == 0 ? 'center' : 'start',
-                alignItems: connectedPeers?.length == 0 ? 'center' : 'start'
+      :style="{justifyContent: sanitize(connectedPeers).length == 0 ? 'center' : 'start',
+                alignItems: sanitize(connectedPeers).length == 0 ? 'center' : 'start'
               }"> 
-      <p v-if="connectedPeers?.length == 0">
+      <p v-if="sanitize(connectedPeers).length == 0">
           Searching for available devices...
       </p>
       <div v-else class="client-element" v-for="peer in sanitize(connectedPeers)" >

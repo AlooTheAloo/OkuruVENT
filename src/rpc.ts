@@ -79,7 +79,6 @@ ipcMain.on("RPC:Response", (_event, { id, status, error, result }) => {
     resolve(result);
   } else if (status === "no_handler") {
     //reject("no_handler");
-    //TODO: fix promise handling all over the app
     resolve(undefined);
   } else {
     console.warn("An RPC call has failed: ", error);

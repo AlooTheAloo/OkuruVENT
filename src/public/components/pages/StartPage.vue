@@ -22,6 +22,9 @@
       chosenHostname.value = hostname;  
     })
     
+    /**
+     * On set hostname on startpage, send data to backend
+     */
     function handleHostName():void{
       rpcInvoke("Application:StartPage:SendHostName", chosenHostname.value);
     }

@@ -20,6 +20,10 @@ import { setSelectedRadio } from '../../index';
 export let peers:Peer[] = [];
 export let discovType:DiscoveryType = DiscoveryType.All;
 
+/**
+ * Changes the discovery type, disconnects the unwanted peers, sets the radio
+ * @param newDiscovType The new discovery type to set as
+ */
 export function setDiscovType(newDiscovType:DiscoveryType):void{
   if(newDiscovType == DiscoveryType.Friends) disconnectNonFriends();
   else if (newDiscovType == DiscoveryType.None) disconnectEveryone();
@@ -34,6 +38,7 @@ let mainwindow:BrowserWindow;
 let broadcastServer:dgram.Socket;
 
 /**
+ * Does all the necessary network discovery
  * @param win electron window to send notifications to 
  */
 export function netDiscov(win:BrowserWindow):void{
@@ -184,7 +189,7 @@ function startClientNetDiscovery():void{
       // return; // Received command from self
     }
     for(let i = 0; i < peers.length; i++){
-      if(peers[i].address == info.address){   
+      if(peers[i].friendID == friendID){   
         return; // Received netdisc from already connected device
       }
     } 

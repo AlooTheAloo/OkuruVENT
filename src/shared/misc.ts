@@ -36,7 +36,6 @@ export type Peer = {
   isFriend:boolean,
   deviceType:DeviceType,
   publicKey:string;
-
 }
 
 export type SavedPeer = {
@@ -44,6 +43,13 @@ export type SavedPeer = {
   friendID:string,
   deviceType:DeviceType,
   publicKey:string;
+}
+
+export type Transfer = {
+  id:string, 
+  filepath:string,
+  socketID:string,
+  filename:string
 }
 
 export type Keys = {

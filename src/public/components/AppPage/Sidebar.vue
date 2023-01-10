@@ -1,8 +1,7 @@
 <template>
   <div
     id="sideBar"
-    style="
-      background-color: #272B2F;
+    style="background-color: #272B2F;
       width: 100px;
       height: 100vh;
       position: absolute;
@@ -12,13 +11,7 @@
       class="tabIndicator"
       :style="{
         width: tabIndicatorSize,
-        height: '50px',
-        borderRadius:'7px',
-        backgroundColor: 'white',
-        boxShadow: '5px 5px 17px 5px rgba(0, 0, 0, 20%)',
-        marginLeft: '25px',
         marginTop: tabIndicatorPosition,
-        position: 'absolute',
       }">
       <p style="color: black; width: 90%; text-align: right; margin-top: 14px;">
         {{ Object.values(Tab)[props.activeTab] }}
@@ -114,6 +107,10 @@ const tabIndicatorSize = computed(
 
 
 ///Local event handlers
+/**
+ * Changes the tab on the parent component
+ * @param newTab The tab to change to
+ */
 function changeTab(newTab: Tab) {
   emit("tabChange", newTab);
 }

@@ -66,10 +66,18 @@ export function isFriend(friendID:string, hostname?:string):boolean{
 }
 
 
+/**
+ * Fetches friends
+ * @returns All friends associated to the database
+ */
 export function getFriends():SavedPeer[]{
     return JSON.parse(readFileSync(`${appDataPath}User${ sep }friends.txt`).toString()); // Read file
 }
 
+/**
+ * Fetches blocked list
+ * @returns All blocked peers associated to the database
+ */
 export function getBlocked():SavedPeer[]{
     return JSON.parse(readFileSync(`${appDataPath}User${ sep }blocked.txt`).toString())
 }
@@ -90,6 +98,10 @@ export function isBlocked(friendID:string):boolean{
     return false;
 }
 
+/**
+ * Blocks a peer and adds it to the local database
+ * @param peer The peer to block
+ */
 export function blockPeer(peer:Peer){
     let blocked:SavedPeer[] = JSON.parse(readFileSync(`${appDataPath}User${ sep }blocked.txt`).toString()); // Read file
     blocked.push({friendID:peer.friendID, lastHostname:peer.hostname, deviceType:peer.deviceType, publicKey:peer.publicKey});
@@ -141,6 +153,20 @@ export function removeFriend(friendID:string):void{
     }
 }
 
+/**
+ * Removes a peer as a friend from the local database
+ * @param friendID FriendID of the peer to remove from the local database
+ */
+export function unBlock(friendID:string):void{
+    let blocked:SavedPeer[] = JSON.parse(readFileSync(`${appDataPath}User${ sep }blocked.txt`).toString()); // Read    
+    blocked = blocked.filter(x => x.friendID != friendID); // Remove
+    writeFileSync(`${appDataPath}User${ sep }blocked.txt`, JSON.stringify(blocked)); // Write
+}
+
+
+/**
+ * Disconnects all non friends from network (useful for when there is a switch in discovtype from everyone -> friends)
+ */
 export function disconnectNonFriends(){
     const currentSockets:{Socket:Socket, friendID:string}[] = getSockets();
     let friends:SavedPeer[] = JSON.parse(readFileSync(`${appDataPath}User${ sep }friends.txt`).toString()); // Read
@@ -155,7 +181,9 @@ export function disconnectNonFriends(){
     }
 }
 
-
+/**
+ * Disconnects everyone from self
+ */
 export function disconnectEveryone(){
     const currentSockets:{Socket:Socket, friendID:string}[] = getSockets();
 
@@ -164,6 +192,9 @@ export function disconnectEveryone(){
     }
 }
 
+/**
+ * Disconnects all blocked people from network
+ */
 export function disconnectBlocked(){
     const currentSockets:{Socket:Socket, friendID:string}[] = getSockets();
 
@@ -174,10 +205,20 @@ export function disconnectBlocked(){
     }
 }
 
-export function getFriendPK(friendID:string){
+/**
+ * Gets the Friend Public Key from a friendID
+ * @param friendID FriendID of the peer
+ * @returns the Public key of said peer
+ */
+export function getFriendPK(friendID:string):string{
     return getFriends().filter(x => x.friendID == friendID)[0].publicKey;
 }
 
+/**
+ * Checks if we can be discovered by a certain device 
+ * @param friendID The ID of the device
+ * @returns true if we can be discovered, false if not
+ */
 export function canBeDiscoveredBy(friendID:string):boolean{
     if(discovType == DiscoveryType.None) return false;
     if(isBlocked(friendID)) return false;
