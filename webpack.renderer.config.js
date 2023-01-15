@@ -6,6 +6,7 @@ const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const path = require("path");
 const { VueLoaderPlugin } = require("vue-loader");
 const { DefinePlugin } = require("webpack");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 rules.push({
   test: /\.vue$/,
@@ -16,7 +17,6 @@ rules.push({
   test: /\.css$/,
   use: ["vue-style-loader", "css-loader"],
 });
-
 /*
 rules.push({
   test: /\.html$/,

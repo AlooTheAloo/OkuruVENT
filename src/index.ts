@@ -9,6 +9,7 @@ if ((await import("electron-squirrel-startup")).default) {
   app.quit();
 }
 
+
 import { startNetDiscovery } from "./backend/server";
 import { discovType, setDiscovType } from "./backend/modules/netdiscovery";
 import { DiscoveryType } from "@shared/misc";
@@ -42,17 +43,17 @@ const createWindow = () => {
   process.on("SIGTERM", () => {
     app.exit(0);
   });
-  
- 
-  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
   // @ts-ignore
   global.mainWindow = mainWindow;
+
+
+  console.log(__dirname);
+  console.log(__filename);
 
   // and load the current page
   mainWindow.loadURL(MAIN_PAGE_WEBPACK_ENTRY);
   //mainWindow.loadURL(PAIR_PAGE_WEBPACK_ENTRY);
-
-
 
   // Open the DevTools
   startNetDiscovery(mainWindow);

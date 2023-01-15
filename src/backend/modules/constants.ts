@@ -1,2 +1,2 @@
-export const port:number = 50727;
+export const port:number = 27727;
 export default {port}; 
