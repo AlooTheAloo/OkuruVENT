@@ -3,6 +3,7 @@ import "source-map-support/register";
 import appicon from "./public/images/unWYSItp.png" // TODO: change this out for official logo
 import { app, BrowserWindow, Menu, MenuItem, Tray } from "electron";
 import install, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
+import path from 'path'
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 // eslint-disable-next-line global-require
 if ((await import("electron-squirrel-startup")).default) {
@@ -14,6 +15,7 @@ import { startNetDiscovery } from "./backend/server";
 import { discovType, setDiscovType } from "./backend/modules/netdiscovery";
 import { DiscoveryType } from "@shared/misc";
 import { rpcInvoke } from "./rpc";
+import isDev from "electron-is-dev";
 
 const createWindow = () => {
   // Create the browser window.
@@ -47,9 +49,6 @@ const createWindow = () => {
   // @ts-ignore
   global.mainWindow = mainWindow;
 
-
-  console.log(__dirname);
-  console.log(__filename);
 
   // and load the current page
   mainWindow.loadURL(MAIN_PAGE_WEBPACK_ENTRY);
@@ -85,8 +84,8 @@ process.on("SIGTERM", () => {
 app.whenReady().then(async () => {
   await install(VUEJS3_DEVTOOLS);
   createWindow();
-
-  const tray = new Tray(appicon);
+  console.log("DIRNAME " + __dirname);
+  const tray = new Tray(fetchPath(appicon));
   contextMenu = Menu.buildFromTemplate([
     {
       label: "Open",
@@ -174,4 +173,14 @@ export function setSelectedRadio(discovType:DiscoveryType):void{
     targetEl.checked = true;
   }
 
+}
+
+
+/**
+ * Converts a Dev path to a distribution path if necessary 
+ * @param inputPath the Dev path
+ * @returns the dev/distribution path depending on context
+ */
+function fetchPath(inputPath:string):string{
+  return isDev ? inputPath : path.join("../../", inputPath);
 }
