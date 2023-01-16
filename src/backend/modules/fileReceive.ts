@@ -12,7 +12,6 @@ export default { createModuleForServer }
 
 export const eventHandler = new EventEmitter(); 
 
-
 /**
  * The 'Constructor' of fileReceive, creates a file receiver for the server accept incoming file transfers
  * @param {Socket} socket the server socket
@@ -30,7 +29,7 @@ export function createModuleForServer(socket:Socket, mainwindow:BrowserWindow):v
 
 
     // Ask for transfer
-    socket.on("Transfer:RequestFileTransfer", (filename:string, hostname:string, transferID:string) =>{
+    socket.on("Transfer:RequestFileTransfer", (filename:string, hostname:string, transferID:string, fileSize:number) =>{
         // Notification
         shownNotification = new Notification({
             title: `${hostname} wants to share ${filename} with you.`,
@@ -47,11 +46,19 @@ export function createModuleForServer(socket:Socket, mainwindow:BrowserWindow):v
                 }
                 else{
                     if(res.filePath == null) return;
+                    console.log("1");
+
                     // Set in arr
                     transfers.push({id:transferID, 
                         filepath:res.filePath, 
+                        lastKnownSpeed: "-",
                         socketID:socket.id, 
-                        filename:res.filePath.split(sep)[res.filePath.split(sep).length - 1]});
+                        filename:res.filePath.split(sep)[res.filePath.split(sep).length - 1],
+                        fileSize : fileSize,
+                        progress : 0
+                    
+                    });
+                    console.log(JSON.stringify(transfers[transfers.length - 1]));                    
                     // Reply
                     socket.emit("ACK:Transfer:FileRequestTransfer", transferID, true, getHostName());
                 }

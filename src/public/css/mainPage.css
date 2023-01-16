@@ -98,6 +98,10 @@ img{
   align-items: center;
 }
 
+.rounded{
+   border-radius: 10px;
+}
+
 .refresh:hover{
   background-color: rgb(200, 200, 200);
 }

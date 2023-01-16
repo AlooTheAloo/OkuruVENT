@@ -10,6 +10,9 @@ let currentNotification:Notification;
 let currentAwaitingSenderTransfers:Transfer[] = [];
 let currentSenderTransfers:Transfer[] = [];
 
+
+
+
 export default { createModuleForClient }
 
 /**
@@ -19,9 +22,6 @@ export default { createModuleForClient }
 */
 export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
 
-
-
-
     // Create hanndler for this client
     ipcMain.handle("Application:FileTransfer:RequestFileTransfer:" + socket.id, (evt) =>{
         dialog.showOpenDialog(mainwindow, {}).then((res) => {
@@ -29,8 +29,18 @@ export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
             else{
                 let transferID = makeid(50);
                 var filename = res.filePaths[0].replace(/^.*[\\\/]/, '')
-                currentAwaitingSenderTransfers.push ({ filename:filename, id:transferID, filepath:res.filePaths[0], socketID:socket.id });
-                socket.emit("Transfer:RequestFileTransfer", filename, getHostName(), transferID);
+                const size = getSize(res.filePaths[0]);
+                currentAwaitingSenderTransfers.push (
+                    { filename:filename, 
+                        id:transferID, 
+                        lastKnownSpeed:"-" , 
+                        filepath:res.filePaths[0], 
+                        socketID:socket.id,
+                        fileSize: size,
+                        progress: 0    
+                    });
+                console.log(currentAwaitingSenderTransfers.length)
+                socket.emit("Transfer:RequestFileTransfer", filename, getHostName(), transferID, size);
             } 
         })
         
@@ -53,7 +63,6 @@ export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
 
             currentSenderTransfers.push(targetTransfer);
             SendPacket(fileTransferID, Date.now(), 0, 0, 0, socket);
-            console.log(`Transfering ${JSON.stringify(targetTransfer)} to ${hostname}`);
         }
         else{
             // create non-garbage collected notification
@@ -96,7 +105,10 @@ function SendPacket(fileTransferID:string, unixMSTimeStamp:number, packetID:numb
     let targetMB = 0; // How many MBs in one packet, we try to get < 5000 MS per packet. 
     if(packetID != 0){
         let time = (Date.now() - unixMSTimeStamp);
-        targetMB = calculateNextPacketSize(size, time)       
+        const [target, speed] = calculateNextPacketSize(size, time, targetTransfer)
+        targetMB = target;
+        targetTransfer.lastKnownSpeed = speed;     
+        console.log(JSON.stringify(targetTransfer));
     }
     else{
         targetMB = 1; // First transfer, 1 MB
@@ -134,22 +146,22 @@ function SendPacket(fileTransferID:string, unixMSTimeStamp:number, packetID:numb
  * Calculates the next transfer packet size
  * @param {number} lastSize the last transfer's size in MB
  * @param {number} lastTime the last transfer's time in ms
- * @returns {number} however much data we should send in the next packet
+ * @returns {[number, string]} however much data we should send in the next packet, the last known speed
  */
-function calculateNextPacketSize(lastSize:number, lastTime:number):number{ 
+function calculateNextPacketSize(lastSize:number, lastTime:number, targetTransfer:Transfer):[number, string]{ 
     let mb = lastSize / lastTime * 1000;
-    console.log(`Transfer speed was ${Math.round(mb * 100) / 100} MBps!`);
+    const lastKnownSpeed = (Math.round(mb * 100) / 100).toString();
     if(lastTime >= 10000){
-        return Math.floor(lastSize / 2); // Let's go MUCH slower. 
+        return [Math.floor(lastSize / 2), lastKnownSpeed]; // Let's go MUCH slower. 
     }
     else if(lastTime >= 4500){
-        return Math.floor(lastSize / 1.2); // lets go slower. 
+        return [Math.floor(lastSize / 1.2), lastKnownSpeed]; // lets go slower. 
     }
     else if (lastTime < 4000){
-        return lastSize * 1.2; // Let's go faster
+        return [lastSize * 1.2, lastKnownSpeed]; // Let's go faster
     }
     else{
-        return lastSize;
+        return [lastSize, lastKnownSpeed];
     }
 }
 

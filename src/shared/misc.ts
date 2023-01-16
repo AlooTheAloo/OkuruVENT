@@ -49,7 +49,10 @@ export type Transfer = {
   id:string, 
   filepath:string,
   socketID:string,
-  filename:string
+  lastKnownSpeed:string,
+  filename:string,
+  fileSize:number, 
+  progress:number, 
 }
 
 export type Keys = {
