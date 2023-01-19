@@ -1,10 +1,15 @@
-import { app, BrowserWindow, dialog, Notification, shell } from "electron";
+import { app, BrowserWindow, dialog, Notification, shell, ipcMain } from "electron";
 import { existsSync, appendFileSync, rmSync, writeFileSync } from "original-fs";
 import { sep } from "path";
 import { Socket } from "socket.io";
 import { getHostName } from "./devices";
 import { EventEmitter } from "events";
 import { Transfer } from "@shared/misc";
+import { rpcInvoke } from "../../rpc";
+
+
+
+let awaitingTransfers:Transfer[] = [];
 let transfers:Transfer[] = [];
 let shownNotification:Notification;
 
@@ -33,8 +38,62 @@ export function createModuleForServer(socket:Socket, mainwindow:BrowserWindow):v
         // Notification
         shownNotification = new Notification({
             title: `${hostname} wants to share ${filename} with you.`,
-            body: `Click here to accept or refuse it.`,
+            body: `Click here to accept it.`,
         });
+        
+
+        awaitingTransfers.push({
+            id:transferID, 
+            filepath: "", 
+            lastKnownSpeed: "-",
+            socketID:hostname, 
+            filename: filename,
+            fileSize : fileSize,
+            progress : 0,
+        
+        });
+
+        console.log("created listener for Application:RespondToTransfer:" + transferID);
+        ipcMain.handle("Application:RespondToTransfer:" + transferID, (evt:Event, response:boolean)=> {
+            console.log("received response " + response);
+            if(!response){ 
+                awaitingTransfers = awaitingTransfers.filter(x => x.id != transferID);
+                socket.emit("AK:Transfer:FileRequestTransfer", transferID, false, getHostName());
+            }
+            else{
+                console.log("Showing dialog...");
+                dialog.showSaveDialog(mainwindow, {
+                    defaultPath: app.getPath("downloads") + sep + filename,
+                }).then((res) => {
+                    if(!res.canceled){
+                        if(res.filePath == null) return;
+                        awaitingTransfers = awaitingTransfers.filter(x => x.id != transferID);
+                        
+                        // Set in arr
+                        transfers.push({
+                            id:transferID, 
+                            filepath:res.filePath, 
+                            lastKnownSpeed: "-",
+                            socketID:socket.id, 
+                            filename:res.filePath.split(sep)[res.filePath.split(sep).length - 1],
+                            fileSize : fileSize,
+                            progress : 0,
+                        
+                        });
+                        updateFilesReceive();
+    
+                        // Reply
+                        socket.emit("ACK:Transfer:FileRequestTransfer", transferID, true, getHostName());
+                    }
+                });
+                
+            
+            }
+
+        })
+        updateFilesReceive();
+
+        
         shownNotification.show();
         shownNotification.on("click", () => { 
 
@@ -42,23 +101,25 @@ export function createModuleForServer(socket:Socket, mainwindow:BrowserWindow):v
                 defaultPath: app.getPath("downloads") + sep + filename,
             }).then((res) => {
                 if(res.canceled){
-                    socket.emit("ACK:Transfer:FileRequestTransfer", transferID, false, getHostName());
+                    socket.emit("AK:Transfer:FileRequestTransfer", transferID, false, getHostName());
                 }
                 else{
                     if(res.filePath == null) return;
-                    console.log("1");
-
+                    awaitingTransfers = awaitingTransfers.filter(x => x.id != transferID);
+                    
                     // Set in arr
-                    transfers.push({id:transferID, 
+                    transfers.push({
+                        id:transferID, 
                         filepath:res.filePath, 
                         lastKnownSpeed: "-",
                         socketID:socket.id, 
                         filename:res.filePath.split(sep)[res.filePath.split(sep).length - 1],
                         fileSize : fileSize,
-                        progress : 0
+                        progress : 0,
                     
                     });
-                    console.log(JSON.stringify(transfers[transfers.length - 1]));                    
+                    updateFilesReceive();
+
                     // Reply
                     socket.emit("ACK:Transfer:FileRequestTransfer", transferID, true, getHostName());
                 }
@@ -72,6 +133,7 @@ export function createModuleForServer(socket:Socket, mainwindow:BrowserWindow):v
         console.log(`Transfer ${fileTransferID} is completed!`)
         const transfer = transfers.filter(x => x.id == fileTransferID)[0]; 
         transfers = transfers.filter(x => x.id != fileTransferID); // Remove transfer
+        updateFilesReceive();
         shownNotification = new Notification(
             {
                 title:"File transfer completed !!",
@@ -102,4 +164,9 @@ export function createModuleForServer(socket:Socket, mainwindow:BrowserWindow):v
         
     });
 
+}
+
+
+export function updateFilesReceive(){
+    rpcInvoke("Application:Update:IncomingTransfers", transfers, awaitingTransfers);
 }

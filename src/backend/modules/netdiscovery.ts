@@ -163,6 +163,7 @@ function getSubnetworkAddr(address:string, mask:string):string {
  */
 function startClientNetDiscovery():void{
 
+  
   let discovClient:dgram.Socket;
 
   // CLIENT SIDE PEER DISCOVERY
@@ -181,7 +182,6 @@ function startClientNetDiscovery():void{
 
   // Decompose packet
   const hostname = msg.toString().split("|")[2].trim();
-
   const friendID = msg.toString().split("|")[3].trim();
 
     if(addr.indexOf(info.address) != -1){
@@ -219,6 +219,7 @@ function startClientNetDiscovery():void{
   
     // On Connection, add to peers
     client.on("connect", () => {
+      console.log("new connection on client");
       for(let i = 0; i < peers.length; i++){
         if(peers[i].address == info.address){   
           client.disconnect();

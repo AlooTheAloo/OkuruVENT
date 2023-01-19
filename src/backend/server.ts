@@ -10,7 +10,7 @@ import { sep } from 'path';
 
 // Modules
 import { discovType, netDiscov, SendPeersToRenderer, SendPeersToRenderer as UpdatePeers, setDiscovType } from './modules/netdiscovery'; // Network scanning module
-import { createModuleForServer as createServerModule } from "./modules/fileReceive";
+import { createModuleForServer as createServerModule, updateFilesReceive } from "./modules/fileReceive";
 import { port } from "./modules/constants";
 import { rpcInvoke } from "../rpc";
 import { createApp } from "./modules/generateApp";
@@ -167,9 +167,13 @@ ipcMain.handle("Application:unfriend", (evt:Event, friendID:string) => {
 })
 
 ipcMain.handle("Application:unblock", (evt:Event, friendID:string) => {
-  console.log("unblocking" + friendID);
   unBlock(friendID);
   rpcInvoke("Application:BlockedList", getBlocked());
+})
+
+ipcMain.handle("Application:Require:IncomingTransfers", () => {
+  console.log("Updating files receive...");
+  updateFilesReceive();
 })
 
 /**
@@ -179,7 +183,7 @@ ipcMain.handle("Application:unblock", (evt:Event, friendID:string) => {
 export function startNetDiscovery(win:BrowserWindow): void{
   mainWindow = win;
   setInterval(() => {
-    netDiscov(win) // Discover peers every 5000 ms
-  }, 5000);
+    netDiscov(win) // Discover peers every 10000 ms
+  }, 10000);
 }
 
