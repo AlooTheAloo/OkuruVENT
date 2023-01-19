@@ -34,7 +34,7 @@
             </p>
                 <div class="discovery-selector"
                 :style="{
-                marginTop:props.activeTab == Tab.New ? '-25px' : '-60px',
+                marginTop:props.activeTab == Tab.New ? '-25px' : '-63px',
                 pointerEvents:props.activeTab == Tab.New ? 'all' : 'none',
                 marginLeft:props.activeTab == Tab.New ? '29px' : '44px'
                 }"

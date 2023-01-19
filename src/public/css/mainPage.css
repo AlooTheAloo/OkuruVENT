@@ -182,7 +182,7 @@ img{
   position: absolute;
   z-index: 0;
   margin-top: 27vh;
-  height: 65vh; 
+  height: 68vh; 
 }
 
 .nearby-devices-text{
@@ -356,7 +356,7 @@ img{
   width: 80vw;  
   position: absolute;
   z-index: 0;
-  height: 80vh; 
+  height: 90vh; 
 }
 
 .friend-element{
@@ -402,7 +402,7 @@ img{
 .transfers-menu{
   background-color: #2A2E32;
   width: 35vw;
-  height: 80vh;
+  height: 90vh;
   box-shadow: 5px 5px 50px rgba(0, 0, 0, 0.4) ;
 }
 

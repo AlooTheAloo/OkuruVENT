@@ -25,6 +25,7 @@ const createWindow = () => {
     frame: true,
     width: 1293,
     height: 727,
+    fullscreenable:false,
     webPreferences: {
       sandbox:false,
       preload: MAIN_PAGE_PRELOAD_WEBPACK_ENTRY,
@@ -33,6 +34,8 @@ const createWindow = () => {
     },
     title: "Okuru",
   });
+
+  mainWindow.webContents.openDevTools();
   
   mainWindow.setIcon(fetchPath(appicon));
   app.on("activate", () => {

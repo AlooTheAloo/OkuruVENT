@@ -37,7 +37,7 @@ export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
                         filepath:res.filePaths[0], 
                         socketID:socket.id,
                         fileSize: size,
-                        progress: 0    
+                        progress: 0,
                     });
                 console.log(currentAwaitingSenderTransfers.length)
                 socket.emit("Transfer:RequestFileTransfer", filename, getHostName(), transferID, size);
