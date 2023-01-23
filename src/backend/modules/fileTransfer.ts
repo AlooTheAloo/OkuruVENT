@@ -4,6 +4,7 @@ import fs from 'fs';
 import { PathLike } from 'original-fs';
 import { Socket } from 'socket.io';
 import { getHostName } from './devices';
+import { addToHistoryFile } from './history';
 
 let currentNotification:Notification;
 
@@ -22,8 +23,8 @@ export default { createModuleForClient }
 */
 export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
 
-    // Create hanndler for this client
-    ipcMain.handle("Application:FileTransfer:RequestFileTransfer:" + socket.id, (evt) =>{
+    // Create handler for this client
+    ipcMain.handle("Application:FileTransfer:RequestFileTransfer:" + socket.id, (evt, ) =>{
         dialog.showOpenDialog(mainwindow, {}).then((res) => {
             if(res.canceled){ return; }
             else{
@@ -38,6 +39,7 @@ export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
                         socketID:socket.id,
                         fileSize: size,
                         progress: 0,
+                        hostname: ""
                     });
                 console.log(currentAwaitingSenderTransfers.length)
                 socket.emit("Transfer:RequestFileTransfer", filename, getHostName(), transferID, size);
@@ -52,6 +54,7 @@ export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
             console.log("Your transfer somehow got accepted by someone you didn't ask to transfer to. Interesting.")
             return;
         }
+        targetTransfer.hostname = hostname;
         currentAwaitingSenderTransfers = currentAwaitingSenderTransfers
         .filter(x => x.id != fileTransferID);
         if(accepted){
@@ -60,7 +63,6 @@ export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
                 body: `${hostname} accepted your file transfer!`
               });   
             currentNotification.show();
-
             currentSenderTransfers.push(targetTransfer);
             SendPacket(fileTransferID, Date.now(), 0, 0, 0, socket);
         }
@@ -79,8 +81,16 @@ export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
             SendPacket(fileTransferID, unixMSTimeStamp, packetID, positionBytes, size, socket);
         }
         else{
+            const transfer:Transfer = currentSenderTransfers.filter(x => x.id == fileTransferID)[0] // get transfer
             currentSenderTransfers = currentSenderTransfers.filter(x => x.id != fileTransferID) // Remove transfer
             socket.emit("Transfer:FileTransferComplete", fileTransferID);
+            addToHistoryFile({
+                hostname:transfer.hostname,
+                filename:transfer.filename,
+                fileSize:transfer.fileSize,
+                isReceived:false,
+                date:new Date()
+            });
         }
     })
 }

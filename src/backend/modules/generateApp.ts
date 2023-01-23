@@ -14,6 +14,7 @@ export function createApp(appDataPath:string, chosenHostname:string):void{
     writeFileSync(`${appDataPath}User${ sep }friends.txt`, JSON.stringify([]));
     writeFileSync(`${appDataPath}User${ sep }blocked.txt`, JSON.stringify([]));
     writeFileSync(`${appDataPath}User${ sep }keys.txt`, JSON.stringify(generateKeys()));
+    writeFileSync(`${appDataPath}User${ sep }history.txt`, JSON.stringify([]));
 }
 
 /**

@@ -52,7 +52,16 @@ export type Transfer = {
   lastKnownSpeed:string,
   filename:string,
   fileSize:number, 
-  progress:number, 
+  progress:number,
+  hostname:string
+}
+
+export type Delivery = {
+  hostname:string,
+  filename:string,
+  fileSize:number,
+  isReceived:boolean,
+  date:Date
 }
 
 export type Keys = {
