@@ -118,7 +118,6 @@ function SendPacket(fileTransferID:string, unixMSTimeStamp:number, packetID:numb
         const [target, speed] = calculateNextPacketSize(size, time, targetTransfer)
         targetMB = target;
         targetTransfer.lastKnownSpeed = speed;     
-        console.log(JSON.stringify(targetTransfer));
     }
     else{
         targetMB = 1; // First transfer, 1 MB
@@ -135,7 +134,6 @@ function SendPacket(fileTransferID:string, unixMSTimeStamp:number, packetID:numb
             console.log(status.message);
             return;
         }
-
         if(targetTransfer == undefined) return; // TS is weird
         let fileSize = getSize(targetTransfer.filepath); // Get the size of the file
         if ((positionBytes * 1e6) + (targetMB * 1e6) > fileSize){ // Last packet too large
@@ -148,7 +146,9 @@ function SendPacket(fileTransferID:string, unixMSTimeStamp:number, packetID:numb
         }
         
         fileSize = fs.statSync(targetTransfer.filepath).size ;
-        socket.emit("Transfer:FileTransferPacket", fileTransferID, Date.now(), targetMB, packetID, positionBytes, false, Buf, fileSize); // Send packet
+        socket.emit("Transfer:FileTransferPacket", fileTransferID, 
+        Date.now(), targetMB, packetID, positionBytes, 
+        false, Buf, fileSize, targetTransfer.lastKnownSpeed); // Send packet
     })
 }
 
@@ -159,6 +159,7 @@ function SendPacket(fileTransferID:string, unixMSTimeStamp:number, packetID:numb
  * @returns {[number, string]} however much data we should send in the next packet, the last known speed
  */
 function calculateNextPacketSize(lastSize:number, lastTime:number, targetTransfer:Transfer):[number, string]{ 
+
     let mb = lastSize / lastTime * 1000;
     const lastKnownSpeed = (Math.round(mb * 100) / 100).toString();
     if(lastTime >= 10000){
@@ -200,3 +201,4 @@ function makeid(length:number): string {
 function getSize(filename:PathLike):number{
     return fs.statSync(filename).size;
 }
+

@@ -87,7 +87,7 @@ server.on("connection", (socket:Socket) => {
     }
     else{
       // IMPOSTOR DETECTED!!!
-      console.log(`Spoofing has been discovered on the network by peer ${ hostname }. Please take caution.`)
+      console.log(`Spoofing has been discovered on the network by peer ${ socket.handshake.query['hostName'] }. Please take caution.`)
       socket.disconnect();
     }
   })
@@ -184,6 +184,6 @@ export function startNetDiscovery(win:BrowserWindow): void{
   mainWindow = win;
   setInterval(() => {
     netDiscov(win) // Discover peers every 10000 ms
-  }, 10000);
+  }, 5000);
 }
 

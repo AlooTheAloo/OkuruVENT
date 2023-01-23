@@ -57,9 +57,11 @@ export function createModuleForServer(socket:Socket, mainwindow:BrowserWindow):v
         console.log("created listener for Application:RespondToTransfer:" + transferID);
         ipcMain.handle("Application:RespondToTransfer:" + transferID, (evt:Event, response:boolean)=> {
             console.log("received response " + response);
-            if(!response){
+            if(!response)
+            {
                 awaitingTransfers = awaitingTransfers.filter(x => x.id != transferID);
-                socket.emit("AK:Transfer:FileRequestTransfer", transferID, false, getHostName());
+                socket.emit("ACK:Transfer:FileRequestTransfer", transferID, false, getHostName());
+                updateFilesReceive();
             }
             else{
                 console.log("Showing dialog...");
@@ -154,20 +156,29 @@ export function createModuleForServer(socket:Socket, mainwindow:BrowserWindow):v
         });
     })
 
-    socket.on("Transfer:FileTransferPacket", (fileTransferID, unixMSTimeStamp, dataPacketSize, packetID, positionBytes, completed:boolean, data, fileSize) => {
+    socket.on("Transfer:FileTransferPacket", (fileTransferID:string, unixMSTimeStamp:number, dataPacketSize:number, packetID:number, positionBytes:number, completed:boolean, data:Buffer, fileSize:number, lastKnownSpeed:string) => {
         const targetTransfer = transfers.filter(x => x.id == fileTransferID)[0];
-
-
-        if(packetID == 0) {
-            if(existsSync( targetTransfer.filepath)){
-                rmSync(targetTransfer.filepath);
+        targetTransfer.lastKnownSpeed = lastKnownSpeed;
+        try{
+            if(packetID == 0) {
+                if(existsSync( targetTransfer.filepath)){
+                    rmSync(targetTransfer.filepath);
+                }
+                writeFileSync(targetTransfer.filepath, data)
             }
-            writeFileSync(targetTransfer.filepath, data)
+            else{
+                appendFileSync(targetTransfer.filepath, data);
+            }
         }
-        else{
-            appendFileSync(targetTransfer.filepath, data);
+        catch(e){
+            alert("Transfer failed");
+            rmSync(targetTransfer.filepath);
+            
         }
+        
+        targetTransfer.progress += dataPacketSize * 1e6;
 
+        rpcInvoke("Application:Update:IncomingTransfers", transfers, awaitingTransfers); 
         socket.emit("ACK:Transfer:FileTransferPacket", fileTransferID, unixMSTimeStamp, packetID + 1, positionBytes + dataPacketSize, dataPacketSize, fileSize);
 
     });
