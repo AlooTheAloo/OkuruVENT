@@ -11,7 +11,7 @@
             height: props.activeTab == Tab.New ? '120px' : '50px',
             marginTop: props.activeTab == Tab.New ? '45px' : '70px',
             marginLeft: props.activeTab == Tab.New ? '0px' : '-170px',
-            width: props.activeTab == Tab.New ? '250px' : '350px'
+            width: props.activeTab == Tab.New ? '250px' : '390px'
             
         }"
         v-on:click=" changeTab(Tab.New) "
@@ -23,20 +23,34 @@
         <div class="discoverable-header-container">
             <p class="animate-slow" :style="{opacity: props.activeTab == Tab.New ? '1' : '0'}">You are discoverable as</p>
             <p class="bold large animate-slow"
-            :style="{marginLeft: props.activeTab == Tab.New ? '0px' : '-180px',
-                    marginTop: props.activeTab == Tab.New ? '0px' : '-5px'}">
+            :style="{
+                marginLeft: props.activeTab == Tab.New ? '0px' : '-200px',
+                marginTop: props.activeTab == Tab.New ? '0px' : '-5px',
+                fontSize: deviceName == undefined ? '0px' : ( props.activeTab == Tab.New ? '22px' :
+                (20 - ( deviceName.length > 32 ? 32 : deviceName.length ) / 4.0) + 'px')
+                }"
+                style="height: 44px; line-height: 44px; position: absolute; width: 100vw;"
+                >
                 <img :style="{opacity: props.activeTab == Tab.New ? '1' : '0'}"
-                src="../../images/computer.svg" style="width: 25px;">
-                {{ deviceName }}
+                src="../../images/computer.svg" style="width: 25px; ">
+                {{
+                    
+                    deviceName == undefined ? "" : ( props.activeTab == Tab.New ? deviceName :
+                    deviceName.length > 32 ? deviceName.substring(0, 29) + "..." : deviceName)
+                }}
             </p>
+            <div style="height: 44px;">
+
+            </div>
+
             <p :style="{opacity: props.activeTab == Tab.New ? '1' : '0'}">
                 By
             </p>
-                <div class="discovery-selector"
+                <div class="discovery-selector animate"
                 :style="{
-                marginTop:props.activeTab == Tab.New ? '-25px' : '-63px',
+                marginTop:props.activeTab == Tab.New ? '-25px' : '-65px',
                 pointerEvents:props.activeTab == Tab.New ? 'all' : 'none',
-                marginLeft:props.activeTab == Tab.New ? '29px' : '44px'
+                marginLeft:props.activeTab == Tab.New ? '29px' : '60px'
                 }"
                 :class="{ clickable:props.activeTab == Tab.New  }"
                 
@@ -172,7 +186,7 @@
      */
     rpcInvoke("Application:Require:HostName");
     rpcHandle("Application:HostName", (res:string) => {
-        deviceName.value = res;
+        deviceName.value = res //res.length > 32 ? res.substring(0, 29) + "..." : res;
     })
 
 </script>

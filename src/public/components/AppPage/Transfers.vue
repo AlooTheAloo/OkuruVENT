@@ -102,6 +102,98 @@
             <p class="bold title title-margin">
                 Outgoing
             </p>
+           
+            <div style="width: 100%; height: 90%; margin-top: 5px; display: flex; flex-direction: column;"
+            :style="{
+                alignItems: liveIncomingTransfers.length === 0 && waitingIncomingTransfers.length === 0 ? 'center' : 'top',
+                justifyContent: liveIncomingTransfers.length === 0 && waitingIncomingTransfers.length === 0 ? 'center' : 'flex-start'
+
+            }">
+                
+                <p v-if="liveIncomingTransfers.length === 0 && waitingIncomingTransfers.length === 0" class="bold" style="font-size:20px;">
+                    There are no outgoing transfers.
+                </p>
+                <div v-else style="height: 100%; width: 100%;">
+                    <div v-for="transfer in waitingIncomingTransfers" style="height: 15%; display: flex;">
+                        <div style="display: flex; justify-content: center; flex-direction: column;">
+                            
+                            <p style="margin-left: 10px;">
+                            <b>
+                                {{ transfer.filename.length > 20 ? 
+                                transfer.filename.substring(0, 20) + "..." :
+                                transfer.filename }}
+                            </b>
+                              from 
+                            <b> 
+
+                                
+                                {{ transfer.socketID.length > 20 ? 
+                                   transfer.socketID.substring(0, 20) + "..." :
+                                   transfer.socketID 
+                                }}
+                            </b>
+                        </p>
+                        <p style="margin-left: 10px;"> 
+                            {{ ConvertBytes(transfer.fileSize, 2) }}
+                        </p>
+                        </div>
+                        <div style="display: flex; gap: 10px; position: absolute; margin-top: 40px; margin-left: 365px;">
+                            <div class="peer-button clickable center-inner animate" v-on:click="RespondToTransfer(transfer.id, true)">
+                                <p style="color: black;">✓</p>
+                            </div>
+                            <div class="peer-button clickable center-inner animate" v-on:click="RespondToTransfer(transfer.id, false)">
+                                <p style="color: black;">X</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div v-for="transfer in liveIncomingTransfers" style="height: 15%; display: flex; width: 100%;">
+                        <div style="display: flex; justify-content: center; flex-direction: column; width: 100%;">
+                            
+                            <p style="margin-left: 10px;">
+                            <b>
+                                {{ transfer.filename.length > 23 ? 
+                                transfer.filename.substring(0, 20) + "..." :
+                                transfer.filename }}
+                            </b>
+                              from 
+                            <b> 
+
+                                
+                                {{ transfer.socketID.length > 23 ? 
+                                   transfer.socketID.substring(0, 20) + "..." :
+                                   transfer.socketID 
+                                }}
+                            </b>
+                            </p>
+                            <div style="height: 50%; display: flex; width: 100%; align-items: center;">
+                                <div style="background-color: white; width: 50%; height: 30%; margin-left: 10px;" class="rounded">
+                                    <div style="background-color: greenyellow; height: 100%;" 
+                                    :style="{
+                                        'width': getProgress(transfer),
+                                    }"
+                                    class="rounded">
+
+                                    </div>
+                                </div>
+                                <div style="display: flex; flex-direction: column; margin-left: 10px; width: calc(50% - 10px); align-items:center;">
+                                    <p style="width: 100%; "> 
+                                        {{ConvertBytes(transfer.progress, 1)}} / {{ ConvertBytes(transfer.fileSize, 1) }}
+                                    </p>
+                                    <p style="width: 100%; line-height: 15px;"> 
+                                        {{transfer.lastKnownSpeed}} MB/s
+                                    </p>
+                                    
+                                </div>
+                               
+                            </div>
+                            
+                        </div>
+                    
+                    </div>
+                        
+                </div>  
+            </div>
         </div>
     </div>
 </template>
