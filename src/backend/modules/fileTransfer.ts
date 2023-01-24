@@ -77,7 +77,7 @@ export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
     })
 
     socket.on("ACK:Transfer:FileTransferPacket", (fileTransferID, unixMSTimeStamp, packetID, positionBytes, size, fileSize) =>{
-        if(positionBytes * 1e6 < fileSize){
+        if(positionBytes * 1e6 < fileSize){ // Transfer is at max size
             SendPacket(fileTransferID, unixMSTimeStamp, packetID, positionBytes, size, socket);
         }
         else{

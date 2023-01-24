@@ -1,9 +1,15 @@
 <template>
   <div class="body">
-    <div id="moreOptions" class="device-more-options-context-menu" 
-    :style="{marginLeft:contextClickPos.x, marginTop:contextClickPos.y, display:windowOpened?'block':'none'}"
+    <div id="moreOptions" class="device-more-options-context-menu animate" style="display: block; " 
+    :style="{
+      marginLeft:contextClickPos.x, 
+      marginTop:contextClickPos.y, 
+      opacity:windowOpened?'1':'0',
+      pointerEvents: windowOpened? 'all' : 'none',
+  
+  }"
     >
-      <p class="center-inner context-menu-text" style="color:#b8b8b8">
+      <p class="center-inner context-menu-text" style="color:#b8b8b8; text-align: center;">
         {{ contextWindowPeer == undefined ? "" : contextWindowPeer.hostname }}
       </p>
       <hr class="hrStyle">
