@@ -171,9 +171,14 @@ export function createModuleForServer(socket:Socket, mainwindow:BrowserWindow):v
             }
         }
         catch(e){
-            alert("Transfer failed");
             rmSync(targetTransfer.filepath);
-            
+            shownNotification = new Notification(
+            {
+                title:"Transfer failed!",
+                body: `Failed to receive ${targetTransfer.filename} `
+            })
+            socket.emit("Transfer:Error", fileTransferID);
+
         }
         
         targetTransfer.progress += dataPacketSize * 1e6;

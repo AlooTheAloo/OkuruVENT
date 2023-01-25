@@ -5,6 +5,7 @@ import { PathLike } from 'original-fs';
 import { Socket } from 'socket.io';
 import { getHostName } from './devices';
 import { addToHistoryFile } from './history';
+import { rpcInvoke } from '../../rpc';
 
 let currentNotification:Notification;
 
@@ -24,7 +25,7 @@ export default { createModuleForClient }
 export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
 
     // Create handler for this client
-    ipcMain.handle("Application:FileTransfer:RequestFileTransfer:" + socket.id, (evt, ) =>{
+    ipcMain.handle("Application:FileTransfer:RequestFileTransfer:" + socket.id, (evt, hostname:string) =>{
         dialog.showOpenDialog(mainwindow, {}).then((res) => {
             if(res.canceled){ return; }
             else{
@@ -39,13 +40,13 @@ export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
                         socketID:socket.id,
                         fileSize: size,
                         progress: 0,
-                        hostname: ""
+                        hostname: hostname
                     });
                 console.log(currentAwaitingSenderTransfers.length)
                 socket.emit("Transfer:RequestFileTransfer", filename, getHostName(), transferID, size);
+                rpcInvoke("Application:Update:OutgoingTransfers", currentSenderTransfers, currentAwaitingSenderTransfers) 
             } 
         })
-        
     })
 
     socket.on("ACK:Transfer:FileRequestTransfer", (fileTransferID, accepted, hostname) => {
@@ -74,6 +75,8 @@ export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
               });   
             currentNotification.show();
         }
+        rpcInvoke("Application:Update:OutgoingTransfers", currentSenderTransfers, currentAwaitingSenderTransfers) 
+
     })
 
     socket.on("ACK:Transfer:FileTransferPacket", (fileTransferID, unixMSTimeStamp, packetID, positionBytes, size, fileSize) =>{
@@ -91,6 +94,7 @@ export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
                 isReceived:false,
                 date:new Date()
             });
+            rpcInvoke("Application:Update:OutgoingTransfers", currentSenderTransfers, currentAwaitingSenderTransfers) 
         }
     })
 }
@@ -104,7 +108,7 @@ export function createModuleForClient(socket:Socket, mainwindow:BrowserWindow){
  * @param {Socket} socket The socket to send the packet to
  * 
 */
-function SendPacket(fileTransferID:string, unixMSTimeStamp:number, packetID:number, positionBytes, size: number, socket: Socket){
+function SendPacket(fileTransferID:string, unixMSTimeStamp:number, packetID:number, positionBytes:number, size: number, socket: Socket){
     console.log("Sending packet #" + packetID);
     let targetTransfer = currentSenderTransfers.find(x => x.id == fileTransferID);
     if(targetTransfer == null || targetTransfer == undefined ){
@@ -149,6 +153,10 @@ function SendPacket(fileTransferID:string, unixMSTimeStamp:number, packetID:numb
         socket.emit("Transfer:FileTransferPacket", fileTransferID, 
         Date.now(), targetMB, packetID, positionBytes, 
         false, Buf, fileSize, targetTransfer.lastKnownSpeed); // Send packet
+        targetTransfer.progress = positionBytes * 1e6;
+        console.log(targetTransfer.hostname);
+        rpcInvoke("Application:Update:OutgoingTransfers",  currentSenderTransfers, currentAwaitingSenderTransfers) 
+
     })
 }
 
@@ -162,13 +170,14 @@ function calculateNextPacketSize(lastSize:number, lastTime:number, targetTransfe
 
     let mb = lastSize / lastTime * 1000;
     const lastKnownSpeed = (Math.round(mb * 100) / 100).toString();
-    if(lastTime >= 10000){
+
+    if(lastTime >= 5000){
         return [Math.floor(lastSize / 2), lastKnownSpeed]; // Let's go MUCH slower. 
     }
-    else if(lastTime >= 4500){
+    else if(lastTime >= 2500){
         return [Math.floor(lastSize / 1.2), lastKnownSpeed]; // lets go slower. 
     }
-    else if (lastTime < 4000){
+    else if (lastTime < 1000){
         return [lastSize * 1.2, lastKnownSpeed]; // Let's go faster
     }
     else{
@@ -202,3 +211,6 @@ function getSize(filename:PathLike):number{
     return fs.statSync(filename).size;
 }
 
+ipcMain.handle("Application:Require:OutgoingTransfers", () => {
+    rpcInvoke("Application:Update:OutgoingTransfers", currentSenderTransfers, currentAwaitingSenderTransfers );
+})

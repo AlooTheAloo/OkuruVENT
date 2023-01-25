@@ -172,7 +172,6 @@ ipcMain.handle("Application:unblock", (evt:Event, friendID:string) => {
 })
 
 ipcMain.handle("Application:Require:IncomingTransfers", () => {
-  console.log("Updating files receive...");
   updateFilesReceive();
 })
 

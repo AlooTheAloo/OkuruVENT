@@ -71,8 +71,10 @@
             
             </div>
 
-            <div class="discovery-selector-dropdown" :style="{
-                display: dropdownOpened ? 'block' : 'none' 
+            <div class="discovery-selector-dropdown animate" :style="{
+                opacity: dropdownOpened ? '1' : '0',
+                pointerEvents: dropdownOpened ? 'all' : 'none'  
+                
             }">
             <div class="discovery-selector-child-element clickable animate list-top-element" v-on:click=" setDiscoveryType(DiscoveryType.All)">
                 <p class="discovery-selector-dropdown-text">Everyone</p>

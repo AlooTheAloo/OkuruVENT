@@ -1,6 +1,6 @@
 <template>
   <div class="body">
-    <div id="moreOptions" class="device-more-options-context-menu animate" style="display: block; " 
+    <div id="moreOptions" class="device-more-options-context-menu " style="display: block; transition: opacity 0.4s ease;" 
     :style="{
       marginLeft:contextClickPos.x, 
       marginTop:contextClickPos.y, 
@@ -78,7 +78,7 @@
         
         </div>
         <div class="peer-buttons-container">
-          <div class="peer-button clickable center-inner animate" v-on:click="RequestFileTransfer(peer.ID)">
+          <div class="peer-button clickable center-inner animate" v-on:click="RequestFileTransfer(peer.ID, peer.hostname)">
             <p style="color: black;">+</p>
           </div>
           <div class="peer-button clickable center-inner animate" v-on:click="OpenContextWindow(peer)">
@@ -226,8 +226,11 @@ function clamp (x:number, min:number, max:number):number{
 /**
  * Requests a file transfer to the connected peer
  * @param {string} id socket id to send the file to
+ * @param {string} hostname hostname of the person to send a file to
  */
-function RequestFileTransfer(id:string):void{ rpcInvoke(`Application:FileTransfer:RequestFileTransfer:${id}`); }
+function RequestFileTransfer(id:string, hostname:string):void{
+   rpcInvoke(`Application:FileTransfer:RequestFileTransfer:${id}`, hostname); 
+}
 
 
 

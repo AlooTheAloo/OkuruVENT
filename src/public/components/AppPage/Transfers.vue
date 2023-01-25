@@ -29,9 +29,9 @@
                             <b> 
 
                                 
-                                {{ transfer.socketID.length > 20 ? 
-                                   transfer.socketID.substring(0, 20) + "..." :
-                                   transfer.socketID 
+                                {{ transfer.hostname.length > 20 ? 
+                                   transfer.hostname.substring(0, 20) + "..." :
+                                   transfer.hostname 
                                 }}
                             </b>
                         </p>
@@ -60,17 +60,18 @@
                             </b>
                               from 
                             <b> 
-
+                                    
                                 
-                                {{ transfer.socketID.length > 23 ? 
-                                   transfer.socketID.substring(0, 20) + "..." :
-                                   transfer.socketID 
+                                {{ 
+                                   transfer.hostname.length > 23 ? 
+                                   transfer.hostname.substring(0, 20) + "..." :
+                                   transfer.hostname 
                                 }}
                             </b>
                             </p>
                             <div style="height: 50%; display: flex; width: 100%; align-items: center;">
                                 <div style="background-color: white; width: 50%; height: 30%; margin-left: 10px;" class="rounded">
-                                    <div style="background-color: greenyellow; height: 100%;" 
+                                    <div style="background-color: #6A9CFF; height: 100%;" 
                                     :style="{
                                         'width': getProgress(transfer),
                                     }"
@@ -105,16 +106,15 @@
            
             <div style="width: 100%; height: 90%; margin-top: 5px; display: flex; flex-direction: column;"
             :style="{
-                alignItems: liveIncomingTransfers.length === 0 && waitingIncomingTransfers.length === 0 ? 'center' : 'top',
-                justifyContent: liveIncomingTransfers.length === 0 && waitingIncomingTransfers.length === 0 ? 'center' : 'flex-start'
-
+                alignItems: liveOutgoingTransfers.length === 0 && waitingOutgoingTransfers.length === 0 ? 'center' : 'top',
+                justifyContent: liveOutgoingTransfers.length === 0 && waitingOutgoingTransfers.length === 0 ? 'center' : 'flex-start'
             }">
                 
-                <p v-if="liveIncomingTransfers.length === 0 && waitingIncomingTransfers.length === 0" class="bold" style="font-size:20px;">
+                <p v-if="liveOutgoingTransfers.length === 0 && waitingOutgoingTransfers.length === 0" class="bold" style="font-size:20px;">
                     There are no outgoing transfers.
                 </p>
                 <div v-else style="height: 100%; width: 100%;">
-                    <div v-for="transfer in waitingIncomingTransfers" style="height: 15%; display: flex;">
+                    <div v-for="transfer in waitingOutgoingTransfers" style="height: 15%; display: flex;">
                         <div style="display: flex; justify-content: center; flex-direction: column;">
                             
                             <p style="margin-left: 10px;">
@@ -123,13 +123,12 @@
                                 transfer.filename.substring(0, 20) + "..." :
                                 transfer.filename }}
                             </b>
-                              from 
+                              to 
                             <b> 
 
-                                
-                                {{ transfer.socketID.length > 20 ? 
-                                   transfer.socketID.substring(0, 20) + "..." :
-                                   transfer.socketID 
+                                {{ transfer.hostname.length > 20 ? 
+                                   transfer.hostname.substring(0, 20) + "..." :
+                                   transfer.hostname 
                                 }}
                             </b>
                         </p>
@@ -147,7 +146,7 @@
                         </div>
                     </div>
                     
-                    <div v-for="transfer in liveIncomingTransfers" style="height: 15%; display: flex; width: 100%;">
+                    <div v-for="transfer in liveOutgoingTransfers" style="height: 15%; display: flex; width: 100%;">
                         <div style="display: flex; justify-content: center; flex-direction: column; width: 100%;">
                             
                             <p style="margin-left: 10px;">
@@ -156,19 +155,19 @@
                                 transfer.filename.substring(0, 20) + "..." :
                                 transfer.filename }}
                             </b>
-                              from 
+                              to 
                             <b> 
 
                                 
-                                {{ transfer.socketID.length > 23 ? 
-                                   transfer.socketID.substring(0, 20) + "..." :
-                                   transfer.socketID 
+                                {{ transfer.hostname.length > 23 ? 
+                                   transfer.hostname.substring(0, 20) + "..." :
+                                   transfer.hostname 
                                 }}
                             </b>
                             </p>
                             <div style="height: 50%; display: flex; width: 100%; align-items: center;">
                                 <div style="background-color: white; width: 50%; height: 30%; margin-left: 10px;" class="rounded">
-                                    <div style="background-color: greenyellow; height: 100%;" 
+                                    <div style="background-color: #6A9CFF; height: 100%;" 
                                     :style="{
                                         'width': getProgress(transfer),
                                     }"
@@ -204,6 +203,9 @@
     import { ref } from 'vue';
     const liveIncomingTransfers = ref<Transfer[]>([]);
     const waitingIncomingTransfers = ref<Transfer[]>([]);
+
+    const liveOutgoingTransfers = ref<Transfer[]>([]);
+    const waitingOutgoingTransfers = ref<Transfer[]>([]);
     
     rpcInvoke("Application:Require:IncomingTransfers");
 
@@ -212,6 +214,14 @@
         waitingIncomingTransfers.value = wait;
     })
     
+
+    rpcInvoke("Application:Require:OutgoingTransfers");
+
+    rpcHandle("Application:Update:OutgoingTransfers", (live:Transfer[], wait:Transfer[]) => {
+        liveOutgoingTransfers.value = live;
+        waitingOutgoingTransfers.value = wait;
+    })
+
     /**
      * Converts a number of bytes to a shortened amount
      * Shamelessly stolen from https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string

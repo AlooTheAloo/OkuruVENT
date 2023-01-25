@@ -15,7 +15,7 @@ p {
 
 .sideBarButton {
   user-select: none;
-  filter: invert(40%) sepia(81%) saturate(662%) hue-rotate(193deg) brightness(108%) contrast(94%);
+  filter: invert(75%) sepia(75%) saturate(4403%) hue-rotate(196deg) brightness(101%) contrast(102%);
   width: 20px;
   height: 20px;
   cursor: pointer;
@@ -378,8 +378,8 @@ img{
 
 .devices-container-row{
   margin-top: 15px;
-  height: 60vh;
-  overflow-y: scroll;
+  height: 71vh;
+  overflow-y:auto;
   display: flex;
   flex-direction: row;
   justify-content:center;
