@@ -1,15 +1,14 @@
 import "source-map-support/register";
 
-import appicon from "./public/images/unWYSItp.png" // TODO: change this out for official logo
+import appicon from "./public/images/unWYSItp.png"; // TODO: change this out for official logo
 import { app, BrowserWindow, Menu, MenuItem, Tray } from "electron";
 import install, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
-import path from 'path'
+import path from "path";
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 // eslint-disable-next-line global-require
 if ((await import("electron-squirrel-startup")).default) {
   app.quit();
 }
-
 
 import { startNetDiscovery } from "./backend/server";
 import { discovType, setDiscovType } from "./backend/modules/netdiscovery";
@@ -20,14 +19,14 @@ import isDev from "electron-is-dev";
 const createWindow = () => {
   // Create the browser window.
 
-  const mainWindow:BrowserWindow = new BrowserWindow({
-    resizable:false,
+  const mainWindow: BrowserWindow = new BrowserWindow({
+    resizable: false,
     frame: true,
     width: 1293,
     height: 727,
-    fullscreenable:false,
+    fullscreenable: false,
     webPreferences: {
-      sandbox:false,
+      sandbox: false,
       preload: MAIN_PAGE_PRELOAD_WEBPACK_ENTRY,
       nodeIntegration: false,
       contextIsolation: true,
@@ -36,8 +35,8 @@ const createWindow = () => {
   });
 
   mainWindow.webContents.openDevTools();
-  
- // mainWindow.setIcon(fetchPath(appicon));
+
+  // mainWindow.setIcon(fetchPath(appicon));
   app.on("activate", () => {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
@@ -45,7 +44,7 @@ const createWindow = () => {
       createWindow();
     }
   });
-  
+
   process.on("SIGTERM", () => {
     app.exit(0);
   });
@@ -53,21 +52,17 @@ const createWindow = () => {
   // @ts-ignore
   global.mainWindow = mainWindow;
 
-
   // and load the current page
   mainWindow.loadURL(MAIN_PAGE_WEBPACK_ENTRY);
   //mainWindow.loadURL(PAIR_PAGE_WEBPACK_ENTRY);
 
   // Open the DevTools
   startNetDiscovery(mainWindow);
-  mainWindow.on('close', event=>{
+  mainWindow.on("close", event => {
     event.preventDefault(); //this prevents it from closing. The `closed` event will not fire now
     mainWindow.hide();
-  })
-  
+  });
 };
-
-
 
 app.on("activate", () => {
   // On OS X it's common to re-create a window in the app when the
@@ -77,7 +72,7 @@ app.on("activate", () => {
   }
 });
 
-export let contextMenu:Menu;
+export let contextMenu: Menu;
 
 process.on("SIGTERM", () => {
   app.exit(0);
@@ -99,7 +94,7 @@ app.whenReady().then(async () => {
         mainWindow.show();
       },
     },
-    
+
     { type: "separator" },
 
     {
@@ -107,7 +102,7 @@ app.whenReady().then(async () => {
       type: "radio",
       id: "Everyone",
       checked: discovType == DiscoveryType.All,
-      click: (m) => {
+      click: m => {
         rpcInvoke("Application:DiscoveryType", DiscoveryType.All);
         setDiscovType(DiscoveryType.All);
         mainWindow.show();
@@ -118,7 +113,7 @@ app.whenReady().then(async () => {
       type: "radio",
       checked: discovType == DiscoveryType.Friends,
       id: "Friends",
-      click: (m) => {
+      click: m => {
         setDiscovType(DiscoveryType.Friends);
         rpcInvoke("Application:DiscoveryType", DiscoveryType.Friends);
         mainWindow.show();
@@ -129,7 +124,7 @@ app.whenReady().then(async () => {
       type: "radio",
       id: "Noone",
       checked: discovType == DiscoveryType.None,
-      click: (m) => {
+      click: m => {
         setDiscovType(DiscoveryType.None);
         rpcInvoke("Application:DiscoveryType", DiscoveryType.None);
         mainWindow.show();
@@ -146,23 +141,20 @@ app.whenReady().then(async () => {
     },
   ]);
 
-  
-
   tray.setToolTip("Okuru - Running in the background");
   tray.setContextMenu(contextMenu);
   tray.addListener("click", () => {
     mainWindow.show();
   });
-
 });
 
 /**
- * Selects one of the radio in the context menu of the tray icon 
+ * Selects one of the radio in the context menu of the tray icon
  * @param discovType The target radio to select
  */
-export function setSelectedRadio(discovType:DiscoveryType):void{
-  let targetEl:MenuItem|null;
-  switch(discovType){
+export function setSelectedRadio(discovType: DiscoveryType): void {
+  let targetEl: MenuItem | null;
+  switch (discovType) {
     case DiscoveryType.All:
       targetEl = contextMenu.getMenuItemById("Everyone");
       break;
@@ -173,18 +165,16 @@ export function setSelectedRadio(discovType:DiscoveryType):void{
       targetEl = contextMenu.getMenuItemById("Noone");
       break;
   }
-  if(targetEl != null){ 
+  if (targetEl != null) {
     targetEl.checked = true;
   }
-
 }
 
-
 /**
- * Converts a Dev path to a distribution path if necessary 
+ * Converts a Dev path to a distribution path if necessary
  * @param inputPath the Dev path
  * @returns the dev/distribution path depending on context
  */
-function fetchPath(inputPath:string):string{
+function fetchPath(inputPath: string): string {
   return isDev ? inputPath : path.join("../../", inputPath);
 }

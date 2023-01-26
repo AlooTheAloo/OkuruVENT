@@ -105,6 +105,10 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
-  "include": ["**/*", "../backend/modules/constants.ts", "../backend/modules/constants.ts"],
+  "include": [
+    "**/*",
+    "../backend/modules/constants.ts",
+    "../backend/modules/constants.ts"
+  ],
   "exclude": ["libs/**/*"]
 }

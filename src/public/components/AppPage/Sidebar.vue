@@ -1,7 +1,8 @@
 <template>
   <div
     id="sideBar"
-    style="background-color: #272B2F;
+    style="
+      background-color: #272b2f;
       width: 100px;
       height: 100vh;
       position: absolute;
@@ -13,43 +14,43 @@
         width: tabIndicatorSize,
         marginTop: tabIndicatorPosition,
       }">
-      <p style="color: black; width: 90%; text-align: right; margin-top: 14px;">
+      <p style="color: black; width: 90%; text-align: right; margin-top: 14px">
         {{ Object.values(Tab)[props.activeTab] }}
-      </p>  
-    
+      </p>
     </div>
-      
 
-    <div style="margin-top: 1vh; height: 100vh; display: flex; flex-direction: column; gap: 40px;
-    align-items: center; justify-content: center;">
-      <img 
+    <div
+      style="
+        margin-top: 1vh;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+        align-items: center;
+        justify-content: center;
+      ">
+      <img
         src="../../images/new.svg"
         class="sideBarButton"
-        @click="changeTab(Tab.New)"
-        >
-        <img 
+        @click="changeTab(Tab.New)" />
+      <img
         src="../../images/devices.svg"
         class="sideBarButton"
-        @click="changeTab(Tab.Devices)"
-        >
-        <img 
+        @click="changeTab(Tab.Devices)" />
+      <img
         src="../../images/transfers.svg"
         class="sideBarButton"
-        @click="changeTab(Tab.Transfers)"
-        >
-        
-        <img 
+        @click="changeTab(Tab.Transfers)" />
+
+      <img
         src="../../images/history.svg"
         class="sideBarButton"
-        @click="changeTab(Tab.History)"
-        >
+        @click="changeTab(Tab.History)" />
 
-        <img 
+      <img
         src="../../images/settings.svg"
         class="sideBarButton"
-        @click="changeTab(Tab.Settings)"
-        >
-
+        @click="changeTab(Tab.Settings)" />
 
       <!-- button
         :style="{
@@ -64,10 +65,9 @@
   </div>
 </template>
 
-<script setup lang="ts">  
-
+<script setup lang="ts">
 import { computed } from "vue";
-import { Tab, Page } from "../../../shared/misc"
+import { Tab, Page } from "../../../shared/misc";
 const props = defineProps<{
   activeTab: Tab;
 }>();
@@ -99,12 +99,8 @@ const tabIndicatorPosition = computed(
   () => tabIndicatorPositions[props.activeTab],
 );
 
-
 ///Computed properties
-const tabIndicatorSize = computed(
-  () => tabIndicatorSizes[props.activeTab],
-);
-
+const tabIndicatorSize = computed(() => tabIndicatorSizes[props.activeTab]);
 
 ///Local event handlers
 /**
@@ -114,5 +110,4 @@ const tabIndicatorSize = computed(
 function changeTab(newTab: Tab) {
   emit("tabChange", newTab);
 }
-
 </script>

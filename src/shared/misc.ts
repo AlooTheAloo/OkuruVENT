@@ -3,68 +3,68 @@ export enum Tab {
   Devices,
   History,
   Transfers,
-  Settings
+  Settings,
 }
 
-export enum Page{
+export enum Page {
   StartPage,
   AppPage,
-  None
+  None,
 }
 
-export enum Filter{
-  All,
-  Friends
-}
-
-export enum DiscoveryType{
+export enum Filter {
   All,
   Friends,
-  None
 }
 
-export enum DeviceType{
+export enum DiscoveryType {
+  All,
+  Friends,
+  None,
+}
+
+export enum DeviceType {
   PC,
-  Mobile
+  Mobile,
 }
 
 export type Peer = {
-  hostname:string,
-  address:string,
-  friendID:string,
-  ID:string,
-  isFriend:boolean,
-  deviceType:DeviceType,
-  publicKey:string;
-}
+  hostname: string;
+  address: string;
+  friendID: string;
+  ID: string;
+  isFriend: boolean;
+  deviceType: DeviceType;
+  publicKey: string;
+};
 
 export type SavedPeer = {
-  lastHostname:string,
-  friendID:string,
-  deviceType:DeviceType,
-  publicKey:string;
-}
+  lastHostname: string;
+  friendID: string;
+  deviceType: DeviceType;
+  publicKey: string;
+};
 
 export type Transfer = {
-  id:string, 
-  filepath:string,
-  socketID:string,
-  lastKnownSpeed:string,
-  filename:string,
-  fileSize:number, 
-  progress:number,
-  hostname:string
-}
+  id: string;
+  filepath: string;
+  socketID: string;
+  lastKnownSpeed: string;
+  filename: string;
+  fileSize: number;
+  progress: number;
+  hostname: string;
+};
 
 export type Delivery = {
-  hostname:string,
-  filename:string,
-  fileSize:number,
-  isReceived:boolean,
-  date:Date
-}
+  hostname: string;
+  filename: string;
+  fileSize: number;
+  isReceived: boolean;
+  date: Date;
+};
 
 export type Keys = {
-  publicKey:string,
-  privateKey:string,
-}
+  publicKey: string;
+  privateKey: string;
+};

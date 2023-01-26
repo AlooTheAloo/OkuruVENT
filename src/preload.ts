@@ -114,8 +114,6 @@ ipcRenderer.on("RPC:Invoke", (_event, { api, id, args }) => {
   }
 });
 
-
-
 ipcRenderer.on("RPC:Reset", () => {
   rpcHandlers.clear();
   canonicalRpcHandlers.clear();

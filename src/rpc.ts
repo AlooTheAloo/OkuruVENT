@@ -33,10 +33,9 @@ async function rpcInvoke(api, ...args) {
     );
   }
 
-
   return new Promise((resolve, reject) => {
     const id = process.hrtime.bigint();
-    
+
     rpcReply.set(id, [resolve, reject]);
     rpcLog(`Main -Invoke> Renderer(${id}): ${api}`, args);
     mainWindow.webContents.send("RPC:Invoke", { api, id, args });

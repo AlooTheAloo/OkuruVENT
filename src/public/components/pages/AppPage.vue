@@ -1,43 +1,30 @@
 <template>
+  <Sidebar @tabChange="changeTab" :active-tab="activeTab" />
+  <!-- Current device name-->
 
-    <Sidebar
-    @tabChange="changeTab"
-    :active-tab="activeTab"/>
-    <!-- Current device name-->
+  <TopBar @tabChange="changeTab" :active-tab="activeTab" />
 
-
-    <TopBar 
-    @tabChange="changeTab"
-    :active-tab="activeTab"
-    />
-
-
-    <!--
+  <!--
       Main page
     -->
-    <div style="margin-left: 100px; overflow-x: hidden;">
-      <New   v-if="activeTab == Tab.New"/>
-      <Devices v-else-if="activeTab == Tab.Devices"/>
-      <Transfers v-else-if="activeTab == Tab.Transfers"/>
-      <History v-else-if="activeTab == Tab.History"/>
-      <Settings  v-else-if="activeTab == Tab.Settings"/>
-      <p v-else>This is awkward. There's nothing to show here.</p>
-    </div>
-      
-    
-
-    
+  <div style="margin-left: 100px; overflow-x: hidden">
+    <New v-if="activeTab == Tab.New" />
+    <Devices v-else-if="activeTab == Tab.Devices" />
+    <Transfers v-else-if="activeTab == Tab.Transfers" />
+    <History v-else-if="activeTab == Tab.History" />
+    <Settings v-else-if="activeTab == Tab.Settings" />
+    <p v-else>This is awkward. There's nothing to show here.</p>
+  </div>
 </template>
 
 <script setup lang="ts">
 // Imports
-import { ref } from 'vue';
-import { rpcHandle } from '../../js/rpc';
-import { Tab } from '@shared/misc';
-
+import { ref } from "vue";
+import { rpcHandle } from "../../js/rpc";
+import { Tab } from "@shared/misc";
 
 // Pages
-import TopBar from "../AppPage/TopElement.vue"
+import TopBar from "../AppPage/TopElement.vue";
 import Settings from "../AppPage/Settings.vue";
 import Transfers from "../AppPage/Transfers.vue";
 import History from "../AppPage/History.vue";
@@ -45,13 +32,11 @@ import Devices from "../AppPage/Devices.vue";
 import New from "../AppPage/New.vue";
 import Sidebar from "../AppPage/Sidebar.vue";
 
-
-
 // Refs
 const activeTab = ref<Tab>(Tab.New);
 const slideDirection = ref(1);
-const connectedPeers = ref<{address:string, ID:string, hostname:string}[]>();
-
+const connectedPeers =
+  ref<{ address: string; ID: string; hostname: string }[]>();
 
 // Event handlers raised by components
 
@@ -68,14 +53,14 @@ async function changeTab(newTab: Tab) {
 /**
  * New client has been discovered / left the network
  */
-rpcHandle("Application:PeersUpdate", (peers:{address:string, ID:string, hostname:string}[]) => {
+rpcHandle(
+  "Application:PeersUpdate",
+  (peers: { address: string; ID: string; hostname: string }[]) => {
     connectedPeers.value = peers;
-}); 
+  },
+);
 </script>
 
 <style scoped>
-  @import '../../css/global.css';
-
+@import "../../css/global.css";
 </style>
-
-

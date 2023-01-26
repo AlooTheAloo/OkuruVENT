@@ -11,37 +11,41 @@ import { Socket } from "socket.io";
  * Fetches the hostname of the current machine, easier than reading file every time
  * @returns the hostname of the current machine
  */
-export function getHostName():string{ 
-    const hostname:string = readFileSync(`${ appDataPath }user/hostname.txt`).toString(); 
-    return hostname;
+export function getHostName(): string {
+  const hostname: string = readFileSync(
+    `${appDataPath}user/hostname.txt`,
+  ).toString();
+  return hostname;
 }
-
 
 /**
  * Fetches and returns the device's public key
  * @returns the device's public key
  */
-export function getPublicKey():string{
-    const keys:Keys = JSON.parse(readFileSync(`${appDataPath}User${ sep }keys.txt`).toString());
-    return keys.publicKey;
+export function getPublicKey(): string {
+  const keys: Keys = JSON.parse(
+    readFileSync(`${appDataPath}User${sep}keys.txt`).toString(),
+  );
+  return keys.publicKey;
 }
 
 /**
  * Fetches and returns the device's private key
  * @returns the device's public key
  */
-export function getPrivateKey():string{
-    const keys:Keys = JSON.parse(readFileSync(`${appDataPath}User${ sep }keys.txt`).toString());
-    return keys.privateKey;
+export function getPrivateKey(): string {
+  const keys: Keys = JSON.parse(
+    readFileSync(`${appDataPath}User${sep}keys.txt`).toString(),
+  );
+  return keys.privateKey;
 }
-
 
 /**
  * Fetches the hostname ID of the current machine, simple helper macro instead of typing machineIdSync();
  * @returns the hostname ID of the current machine
  */
-export function getHostID():string{
-    return machineIdSync();
+export function getHostID(): string {
+  return machineIdSync();
 }
 
 /**
@@ -50,159 +54,197 @@ export function getHostID():string{
  * @param hostname current hostname of the peer
  * @returns true if user is a friend, false if not
  */
-export function isFriend(friendID:string, hostname?:string):boolean{ 
-    let friends:SavedPeer[] = JSON.parse(readFileSync(`${appDataPath}User${ sep }friends.txt`).toString()); // Read file
-    for(let i = 0; i < friends.length; i++){ // Go through the array
-        if(friends[i].friendID == friendID){ // We are friends with hem!
-            if(hostname == null) return true;
-            if(friends[i].lastHostname != hostname){ // name has changed since! 
-                friends[i].lastHostname = hostname;
-                writeFileSync(`${appDataPath}User${ sep }friends.txt`, JSON.stringify(friends));
-            }
-            return true; 
-        }
+export function isFriend(friendID: string, hostname?: string): boolean {
+  let friends: SavedPeer[] = JSON.parse(
+    readFileSync(`${appDataPath}User${sep}friends.txt`).toString(),
+  ); // Read file
+  for (let i = 0; i < friends.length; i++) {
+    // Go through the array
+    if (friends[i].friendID == friendID) {
+      // We are friends with hem!
+      if (hostname == null) return true;
+      if (friends[i].lastHostname != hostname) {
+        // name has changed since!
+        friends[i].lastHostname = hostname;
+        writeFileSync(
+          `${appDataPath}User${sep}friends.txt`,
+          JSON.stringify(friends),
+        );
+      }
+      return true;
     }
-    return false;
+  }
+  return false;
 }
-
 
 /**
  * Fetches friends
  * @returns All friends associated to the database
  */
-export function getFriends():SavedPeer[]{
-    return JSON.parse(readFileSync(`${appDataPath}User${ sep }friends.txt`).toString()); // Read file
+export function getFriends(): SavedPeer[] {
+  return JSON.parse(
+    readFileSync(`${appDataPath}User${sep}friends.txt`).toString(),
+  ); // Read file
 }
 
 /**
  * Fetches blocked list
  * @returns All blocked peers associated to the database
  */
-export function getBlocked():SavedPeer[]{
-    return JSON.parse(readFileSync(`${appDataPath}User${ sep }blocked.txt`).toString())
+export function getBlocked(): SavedPeer[] {
+  return JSON.parse(
+    readFileSync(`${appDataPath}User${sep}blocked.txt`).toString(),
+  );
 }
-
 
 /**
  * Check if a certain user is blocked, we terminate the connection if they are
  * @param friendID the friendID of the person to check if they're a friend or not
  * @returns true if the user is a friend, false if not
  */
-export function isBlocked(friendID:string):boolean{
-    let blocked:SavedPeer[] = JSON.parse(readFileSync(`${appDataPath}User${ sep }blocked.txt`).toString()); // Read file
-    for(let i = 0; i < blocked.length; i++){ // Go through the array
-        if(blocked[i].friendID == friendID){ // We have them blocked!
-            return true;
-        }
+export function isBlocked(friendID: string): boolean {
+  let blocked: SavedPeer[] = JSON.parse(
+    readFileSync(`${appDataPath}User${sep}blocked.txt`).toString(),
+  ); // Read file
+  for (let i = 0; i < blocked.length; i++) {
+    // Go through the array
+    if (blocked[i].friendID == friendID) {
+      // We have them blocked!
+      return true;
     }
-    return false;
+  }
+  return false;
 }
 
 /**
  * Blocks a peer and adds it to the local database
  * @param peer The peer to block
  */
-export function blockPeer(peer:Peer){
-    let blocked:SavedPeer[] = JSON.parse(readFileSync(`${appDataPath}User${ sep }blocked.txt`).toString()); // Read file
-    blocked.push({friendID:peer.friendID, lastHostname:peer.hostname, deviceType:peer.deviceType, publicKey:peer.publicKey});
-    writeFileSync(`${appDataPath}User${ sep }blocked.txt`, JSON.stringify(blocked));
-    if(isFriend(peer.friendID, peer.hostname)){
-        removeFriend(peer.friendID)
-    }
-    disconnectBlocked();
+export function blockPeer(peer: Peer) {
+  let blocked: SavedPeer[] = JSON.parse(
+    readFileSync(`${appDataPath}User${sep}blocked.txt`).toString(),
+  ); // Read file
+  blocked.push({
+    friendID: peer.friendID,
+    lastHostname: peer.hostname,
+    deviceType: peer.deviceType,
+    publicKey: peer.publicKey,
+  });
+  writeFileSync(`${appDataPath}User${sep}blocked.txt`, JSON.stringify(blocked));
+  if (isFriend(peer.friendID, peer.hostname)) {
+    removeFriend(peer.friendID);
+  }
+  disconnectBlocked();
 }
-
 
 /**
  * Adds a peer as a friend to the local database
  * @param friendID FriendID of the peer to add to the local database
  * @param hostname Name of the peer to add to the local database
  */
-export function addFriend(peer:Peer):void{
-    console.log("Added as friend!");
+export function addFriend(peer: Peer): void {
+  console.log("Added as friend!");
 
-    let friends:SavedPeer[] = JSON.parse(readFileSync(`${appDataPath}User${ sep }friends.txt`).toString()); // Read
-    const newFriend:SavedPeer = {friendID:peer.friendID, lastHostname:peer.hostname, deviceType:peer.deviceType, publicKey:peer.publicKey}; // Create friend object
-    friends.push(newFriend); // Add
-    writeFileSync(`${appDataPath}User${ sep }friends.txt`, JSON.stringify(friends)); // Write
-    for(let i = 0; i < peers.length; i++){
-        if(peers[i].friendID == peer.friendID){
-            peers[i].isFriend = true;
-            break;
-        }
+  let friends: SavedPeer[] = JSON.parse(
+    readFileSync(`${appDataPath}User${sep}friends.txt`).toString(),
+  ); // Read
+  const newFriend: SavedPeer = {
+    friendID: peer.friendID,
+    lastHostname: peer.hostname,
+    deviceType: peer.deviceType,
+    publicKey: peer.publicKey,
+  }; // Create friend object
+  friends.push(newFriend); // Add
+  writeFileSync(`${appDataPath}User${sep}friends.txt`, JSON.stringify(friends)); // Write
+  for (let i = 0; i < peers.length; i++) {
+    if (peers[i].friendID == peer.friendID) {
+      peers[i].isFriend = true;
+      break;
     }
-        
+  }
 }
 /**
  * Removes a peer as a friend from the local database
  * @param friendID FriendID of the peer to remove from the local database
  */
-export function removeFriend(friendID:string):void{
-    let friends:SavedPeer[] = JSON.parse(readFileSync(`${appDataPath}User${ sep }friends.txt`).toString()); // Read
-    
-    friends = friends.filter(x => x.friendID != friendID); // Remove
-    writeFileSync(`${appDataPath}User${ sep }friends.txt`, JSON.stringify(friends)); // Write
-    for(let i = 0; i < peers.length; i++){ // Filter
-        if(peers[i].friendID == friendID){
+export function removeFriend(friendID: string): void {
+  let friends: SavedPeer[] = JSON.parse(
+    readFileSync(`${appDataPath}User${sep}friends.txt`).toString(),
+  ); // Read
 
-            if(discovType == DiscoveryType.Friends) disconnectNonFriends();
+  friends = friends.filter(x => x.friendID != friendID); // Remove
+  writeFileSync(`${appDataPath}User${sep}friends.txt`, JSON.stringify(friends)); // Write
+  for (let i = 0; i < peers.length; i++) {
+    // Filter
+    if (peers[i].friendID == friendID) {
+      if (discovType == DiscoveryType.Friends) disconnectNonFriends();
 
-            peers[i].isFriend = false;
-            break;
-        }
+      peers[i].isFriend = false;
+      break;
     }
+  }
 }
 
 /**
  * Removes a peer as a friend from the local database
  * @param friendID FriendID of the peer to remove from the local database
  */
-export function unBlock(friendID:string):void{
-    let blocked:SavedPeer[] = JSON.parse(readFileSync(`${appDataPath}User${ sep }blocked.txt`).toString()); // Read    
-    blocked = blocked.filter(x => x.friendID != friendID); // Remove
-    writeFileSync(`${appDataPath}User${ sep }blocked.txt`, JSON.stringify(blocked)); // Write
+export function unBlock(friendID: string): void {
+  let blocked: SavedPeer[] = JSON.parse(
+    readFileSync(`${appDataPath}User${sep}blocked.txt`).toString(),
+  ); // Read
+  blocked = blocked.filter(x => x.friendID != friendID); // Remove
+  writeFileSync(`${appDataPath}User${sep}blocked.txt`, JSON.stringify(blocked)); // Write
 }
-
 
 /**
  * Disconnects all non friends from network (useful for when there is a switch in discovtype from everyone -> friends)
  */
-export function disconnectNonFriends(){
-    const currentSockets:{Socket:Socket, friendID:string}[] = getSockets();
-    let friends:SavedPeer[] = JSON.parse(readFileSync(`${appDataPath}User${ sep }friends.txt`).toString()); // Read
-    let friendsIDs:string[] = [];
-    for(let i = 0; i < friends.length; i++){
-        friendsIDs.push(friends[i].friendID);
+export function disconnectNonFriends() {
+  const currentSockets: { Socket: Socket; friendID: string }[] = getSockets();
+  let friends: SavedPeer[] = JSON.parse(
+    readFileSync(`${appDataPath}User${sep}friends.txt`).toString(),
+  ); // Read
+  let friendsIDs: string[] = [];
+  for (let i = 0; i < friends.length; i++) {
+    friendsIDs.push(friends[i].friendID);
+  }
+  for (let i = 0; i < currentSockets.length; i++) {
+    // Filter
+    if (!friendsIDs.includes(currentSockets[i].friendID)) {
+      eventHandler.emit(
+        `Application:DisconnectSocket:${currentSockets[i].Socket.id}`,
+      );
     }
-    for(let i = 0; i < currentSockets.length; i++){ // Filter
-        if(!friendsIDs.includes(currentSockets[i].friendID)){
-            eventHandler.emit(`Application:DisconnectSocket:${currentSockets[i].Socket.id}`)
-        }
-    }
+  }
 }
 
 /**
  * Disconnects everyone from self
  */
-export function disconnectEveryone(){
-    const currentSockets:{Socket:Socket, friendID:string}[] = getSockets();
+export function disconnectEveryone() {
+  const currentSockets: { Socket: Socket; friendID: string }[] = getSockets();
 
-    for(let i = 0; i < currentSockets.length; i++){ // Filter
-        eventHandler.emit(`Application:DisconnectSocket:${currentSockets[i].Socket.id}`)
-    }
+  for (let i = 0; i < currentSockets.length; i++) {
+    // Filter
+    eventHandler.emit(
+      `Application:DisconnectSocket:${currentSockets[i].Socket.id}`,
+    );
+  }
 }
 
 /**
  * Disconnects all blocked people from network
  */
-export function disconnectBlocked(){
-    const currentSockets:{Socket:Socket, friendID:string}[] = getSockets();
+export function disconnectBlocked() {
+  const currentSockets: { Socket: Socket; friendID: string }[] = getSockets();
 
-    for(let i = 0; i < currentSockets.length; i++){ // Iterative algo
-        if(isBlocked(currentSockets[i].friendID)){
-            eventHandler.emit(`Application:DisconnectSocket:${peers[i].ID}`)
-        }
+  for (let i = 0; i < currentSockets.length; i++) {
+    // Iterative algo
+    if (isBlocked(currentSockets[i].friendID)) {
+      eventHandler.emit(`Application:DisconnectSocket:${peers[i].ID}`);
     }
+  }
 }
 
 /**
@@ -210,20 +252,20 @@ export function disconnectBlocked(){
  * @param friendID FriendID of the peer
  * @returns the Public key of said peer
  */
-export function getFriendPK(friendID:string):string{
-    return getFriends().filter(x => x.friendID == friendID)[0].publicKey;
+export function getFriendPK(friendID: string): string {
+  return getFriends().filter(x => x.friendID == friendID)[0].publicKey;
 }
 
 /**
- * Checks if we can be discovered by a certain device 
+ * Checks if we can be discovered by a certain device
  * @param friendID The ID of the device
  * @returns true if we can be discovered, false if not
  */
-export function canBeDiscoveredBy(friendID:string):boolean{
-    if(discovType == DiscoveryType.None) return false;
-    if(isBlocked(friendID)) return false;
-    if(discovType == DiscoveryType.Friends){
-        if(!isFriend(friendID)) return false;
-    }    
-    return true;
+export function canBeDiscoveredBy(friendID: string): boolean {
+  if (discovType == DiscoveryType.None) return false;
+  if (isBlocked(friendID)) return false;
+  if (discovType == DiscoveryType.Friends) {
+    if (!isFriend(friendID)) return false;
+  }
+  return true;
 }

@@ -4,5 +4,4 @@ import pairPage from "../components/pages/Main.vue";
 
 const app = createApp(pairPage);
 
-
 app.mount("#root");

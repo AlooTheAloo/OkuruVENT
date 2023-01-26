@@ -1,19 +1,19 @@
 @font-face {
-    font-family: poppins;
-    src: url(../fonts/Poppins-Regular.ttf);
+  font-family: poppins;
+  src: url(../fonts/Poppins-Regular.ttf);
 }
 @font-face {
-    font-family: poppins-bold;
-    src: url(../fonts/Poppins-Bold.ttf);
+  font-family: poppins-bold;
+  src: url(../fonts/Poppins-Bold.ttf);
 }
 
-
-p, h1{
-    color: white;
-    font-family: poppins;
-    margin: 0;
+p,
+h1 {
+  color: white;
+  font-family: poppins;
+  margin: 0;
 }
 
-.clientElement{ 
-    cursor: pointer;
+.clientElement {
+  cursor: pointer;
 }

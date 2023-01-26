@@ -1,6 +1,6 @@
 <template>
-    <div class="body">
-        <p>Settings!</p>
-    </div>
+  <div class="body">
+    <p>Settings!</p>
+  </div>
 </template>
-<style src="../../css/global.css"/>    
+<style src="../../css/global.css" />

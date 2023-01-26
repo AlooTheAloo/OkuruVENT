@@ -1,6 +1,6 @@
 <template>
-    <div class="body">
-        <p>History!</p>
-    </div>
+  <div class="body">
+    <p>History!</p>
+  </div>
 </template>
-<style src="../../css/global.css"/>    
+<style src="../../css/global.css" />
