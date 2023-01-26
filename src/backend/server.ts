@@ -39,6 +39,7 @@ import {
   unBlock,
 } from "./modules/devices";
 import { createVerify, randomBytes } from "crypto";
+import { fetchHistory } from "./modules/history";
 
 // Server Vars
 const server = new Server(port, {
@@ -216,6 +217,11 @@ ipcMain.handle("Application:unblock", (evt: Event, friendID: string) => {
 ipcMain.handle("Application:Require:IncomingTransfers", () => {
   updateFilesReceive();
 });
+
+ipcMain.handle("Application:Require:History", () => {
+  console.log("Fetching history file");
+  rpcInvoke("ACK:Application:Require:History", fetchHistory())
+})
 
 /**
  *  @param { BrowserWindow } win the electron window to send notifications to
