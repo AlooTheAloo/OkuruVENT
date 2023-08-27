@@ -18,6 +18,7 @@ export function clearHistory() {
 }
 
 export function fetchHistory(): Delivery[] {
+  console.log(`${appDataPath}User${sep}history.txt`);
   return JSON.parse(
     readFileSync(`${appDataPath}User${sep}history.txt`).toString(),
   ).map(x => ({

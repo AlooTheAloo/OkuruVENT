@@ -37,10 +37,7 @@
           friend
         </p>
       </div>
-      <div class="device-more-options-child animate">
-        <img class="context-icon" src="../../images/link.svg" />
-        <p class="context-menu-text">Send text/link</p>
-      </div>
+
       <div class="device-more-options-child animate" v-on:click="BlockPeer()">
         <img class="context-icon" src="../../images/block.svg" />
         <p class="context-menu-text">Block device</p>

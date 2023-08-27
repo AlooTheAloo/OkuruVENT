@@ -108,6 +108,9 @@ const COLUMN_COUNT = 2;
 
 rpcInvoke("Application:Require:FriendsList");
 rpcHandle("Application:FriendsList", (receivedFriendsList: SavedPeer[]) => {
+  receivedFriendsList.forEach(element => {
+    console.log(element.lastHostname);
+  });
   friendsList.value = receivedFriendsList;
 });
 
@@ -126,10 +129,12 @@ function getRow(index: number): SavedPeer[] {
     selectedFilter.value == DeviceFilterType.Friends
       ? friendsList.value
       : blockedList.value;
+
+  console.log(JSON.stringify(targetArray.map(x => x.lastHostname)));
+
   for (let i = index; i < targetArray.length; i += COLUMN_COUNT) {
     retVal.push(targetArray[i]);
   }
-
   return retVal;
 }
 

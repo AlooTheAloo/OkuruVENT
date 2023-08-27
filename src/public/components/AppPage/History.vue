@@ -19,8 +19,12 @@
             </th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="item in sortedHistory" :key="item.date.valueOf()">
+
+        <tbody style="height: 500px; overflow-y: auto; display: block">
+          <tr
+            style="height: 50px; display: table"
+            v-for="item in sortedHistory"
+            :key="item.date.valueOf()">
             <td>{{ item.filename }}</td>
             <td>{{ ConvertBytes(item.fileSize, 2) }}</td>
             <td>{{ item.hostname }}</td>
