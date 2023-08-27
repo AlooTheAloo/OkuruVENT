@@ -6,7 +6,13 @@ import {
   shell,
   ipcMain,
 } from "electron";
-import { existsSync, appendFileSync, rmSync, writeFileSync } from "original-fs";
+import {
+  existsSync,
+  appendFileSync,
+  rmSync,
+  writeFileSync,
+  rm,
+} from "original-fs";
 import { sep } from "path";
 import { Socket } from "socket.io";
 import { getHostName } from "./devices";
@@ -253,6 +259,22 @@ export function createModuleForServer(
       );
     },
   );
+}
+
+/**
+ * Called when there is a socket that disconnects
+ * @param socketID The ID of the disconnecting socket
+ */
+export function clientDisconnected(socketID: string) {
+  const transfersToRemove = transfers.filter(x => x.socketID == socketID);
+  for (const transfer of transfersToRemove) {
+    shownNotification = new Notification({
+      title: "Tranfer failed",
+      body: "Transfer from " + transfer.hostname,
+    });
+    rm(transfer.filepath, () => {});
+  }
+  transfers = transfers.filter(x => x.socketID != socketID);
 }
 
 export function updateFilesReceive() {

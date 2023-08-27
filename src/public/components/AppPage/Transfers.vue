@@ -224,19 +224,10 @@
                 display: flex;
                 gap: 10px;
                 position: absolute;
-                margin-top: 40px;
-                margin-left: 365px;
+                margin-top: 30px;
+                margin-left: 280px;
               ">
-              <div
-                class="peer-button clickable center-inner animate"
-                v-on:click="RespondToTransfer(transfer.id, true)">
-                <p style="color: black">✓</p>
-              </div>
-              <div
-                class="peer-button clickable center-inner animate"
-                v-on:click="RespondToTransfer(transfer.id, false)">
-                <p style="color: black">X</p>
-              </div>
+              <p>Awaiting response...</p>
             </div>
           </div>
 

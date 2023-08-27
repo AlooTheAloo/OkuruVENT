@@ -17,6 +17,7 @@ import {
   setDiscovType,
 } from "./modules/netdiscovery"; // Network scanning module
 import {
+  clientDisconnected,
   createModuleForServer as createServerModule,
   updateFilesReceive,
 } from "./modules/fileReceive";
@@ -43,8 +44,8 @@ import { fetchHistory } from "./modules/history";
 
 // Server Vars
 const server = new Server(port, {
-  pingInterval: 2000,
-  pingTimeout: 6000,
+  pingInterval: 5000,
+  pingTimeout: 20000,
   transports: ["websocket"],
   maxHttpBufferSize: 1e25,
 });
@@ -134,6 +135,7 @@ server.on("connection", (socket: Socket) => {
 
   socket.on("disconnect", (reason: string) => {
     clientRecords = clientRecords.filter(x => x.socketID != socket.id);
+    clientDisconnected(socket.id);
   });
 });
 
@@ -220,8 +222,8 @@ ipcMain.handle("Application:Require:IncomingTransfers", () => {
 
 ipcMain.handle("Application:Require:History", () => {
   console.log("Fetching history file");
-  rpcInvoke("ACK:Application:Require:History", fetchHistory())
-})
+  rpcInvoke("ACK:Application:Require:History", fetchHistory());
+});
 
 /**
  *  @param { BrowserWindow } win the electron window to send notifications to
