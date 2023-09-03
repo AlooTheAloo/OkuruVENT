@@ -44,12 +44,6 @@
    npm start
    ```
    
-## Screenshots
-
-![Screenshot 1](screenshot1.png)
-
-![Screenshot 2](screenshot2.png)
-
 ## Contributing
 
 We welcome contributions from the open-source community. If you want to contribute to **okuru**, please follow our [contributing guidelines](CONTRIBUTING.md).
