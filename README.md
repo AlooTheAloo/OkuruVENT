@@ -43,10 +43,6 @@
    ```bash
    npm start
    ```
-   
-## Contributing
-
-We welcome contributions from the open-source community. If you want to contribute to **okuru**, please follow our [contributing guidelines](CONTRIBUTING.md).
 
 ## License
 
