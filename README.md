@@ -7,8 +7,6 @@
 - [Features](#features)
 - [Getting Started](#getting-started)
   - [Installation](#installation)
-  - [Usage](#usage)
-- [Security](#security)
 - [Screenshots](#screenshots)
 - [Contributing](#contributing)
 - [License](#license)
