@@ -34,8 +34,6 @@ const createWindow = () => {
     title: "Okuru",
   });
 
-  mainWindow.webContents.openDevTools();
-
   // mainWindow.setIcon(fetchPath(appicon));
   app.on("activate", () => {
     // On OS X it's common to re-create a window in the app when the
@@ -56,7 +54,6 @@ const createWindow = () => {
   mainWindow.loadURL(MAIN_PAGE_WEBPACK_ENTRY);
   //mainWindow.loadURL(PAIR_PAGE_WEBPACK_ENTRY);
 
-  // Open the DevTools
   startNetDiscovery(mainWindow);
   mainWindow.on("close", event => {
     event.preventDefault(); //this prevents it from closing. The `closed` event will not fire now
