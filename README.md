@@ -36,9 +36,7 @@
    npm install
    ```
 
-3. Configure your application settings, including your public and private keys.
-
-4. Start the application:
+3. Start the application:
 
    ```bash
    npm start
